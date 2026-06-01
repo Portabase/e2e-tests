@@ -1,0 +1,131 @@
+[[databases]]
+name = "MongoDB 8.0 Auth"
+database = "backup_e2e"
+type = "mongodb"
+username = "backup"
+password = "backup"
+port = 27017
+host = "mongodb-8.0-auth"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef101"
+
+[[databases]]
+name = "MongoDB 8.0 No Auth"
+database = "backup_e2e"
+type = "mongodb"
+username = ""
+password = ""
+port = 27017
+host = "mongodb-8.0-no-auth"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef102"
+
+[[databases]]
+name = "MongoDB 7.0 Auth"
+database = "backup_e2e"
+type = "mongodb"
+username = "backup"
+password = "backup"
+port = 27017
+host = "mongodb-7.0-auth"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef103"
+
+[[databases]]
+name = "MongoDB 7.0 No Auth"
+database = "backup_e2e"
+type = "mongodb"
+username = ""
+password = ""
+port = 27017
+host = "mongodb-7.0-no-auth"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef104"
+
+[[databases]]
+name = "MongoDB 6.0 Auth"
+database = "backup_e2e"
+type = "mongodb"
+username = "backup"
+password = "backup"
+port = 27017
+host = "mongodb-6.0-auth"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef105"
+
+[[databases]]
+name = "MongoDB 6.0 No Auth"
+database = "backup_e2e"
+type = "mongodb"
+username = ""
+password = ""
+port = 27017
+host = "mongodb-6.0-no-auth"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef106"
+
+[[databases]]
+name = "Redis 8"
+database = "0"
+type = "redis"
+username = ""
+password = ""
+port = 6379
+host = "redis-8"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef107"
+
+[[databases]]
+name = "Redis 7"
+database = "0"
+type = "redis"
+username = ""
+password = ""
+port = 6379
+host = "redis-7"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef108"
+
+[[databases]]
+name = "Valkey 8"
+database = "0"
+type = "valkey"
+username = ""
+password = ""
+port = 6379
+host = "valkey-8"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef109"
+
+[[databases]]
+name = "Valkey 7"
+database = "0"
+type = "valkey"
+username = ""
+password = ""
+port = 6379
+host = "valkey-7"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef110"
+
+[[databases]]
+name = "MSSQL 2022"
+database = "master"
+type = "mssql"
+username = "sa"
+password = "BackupRootPassw0rd!"
+port = 1433
+host = "mssql-2022"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef111"
+
+[[databases]]
+name = "MSSQL 2019"
+database = "master"
+type = "mssql"
+username = "sa"
+password = "BackupRootPassw0rd!"
+port = 1433
+host = "mssql-2019"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef112"
+
+[[databases]]
+name = "SQLite 3.46"
+type = "sqlite"
+path = "/sqlite-data/workspace/data/app.db"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef113"
+
+[[databases]]
+name = "SQLite 3.45"
+type = "sqlite"
+path = "/sqlite-data/workspace/data/app.db"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef114"

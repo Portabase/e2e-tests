@@ -1,0 +1,24 @@
+name: portabase-agent-b
+
+services:
+
+  app:
+    image: portabase/agent:latest
+    restart: unless-stopped
+    volumes:
+      - ./databases.toml:/config/config.toml
+    environment:
+      LOG: info
+      TZ: "UTC"
+      POLLING: 5
+      EDGE_KEY: "${EDGE_KEY}"
+      DATABASES_CONFIG_FILE: "config.toml"
+    networks:
+      - portabase
+    extra_hosts:
+      - "localhost:host-gateway"
+
+networks:
+  portabase:
+    name: portabase
+    external: true

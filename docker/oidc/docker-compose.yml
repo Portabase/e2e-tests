@@ -1,0 +1,138 @@
+name: portabase-oidc
+
+services:
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    restart: unless-stopped
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "3056:8080"
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+      - ./seeds/keycloak:/opt/keycloak/data/import:ro
+      - ./export:/tmp/export
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -ec '</dev/tcp/127.0.0.1/8080'" ]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  pocket-id:
+    image: ghcr.io/pocket-id/pocket-id
+    restart: unless-stopped
+    environment:
+      - APP_URL=http://localhost:3055
+      - ENCRYPTION_KEY=QwHyjbZvSsDUAcjpdmSPsuYxaH6vET6OeBaeLwXccCb43L6Om3W1AoU5pKIJTzYr
+    ports:
+      - "3055:1411"
+    volumes:
+      - pocket-id-data:/app/data
+      - ./seeds/pocket-id:/seed:ro
+    healthcheck:
+      test: "curl -f http://localhost:1411/healthz"
+      interval: 1m30s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2026.2.3
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_SECRET_KEY: changemechangemechangemechangeme
+    ports:
+      - "3057:9000"
+    depends_on:
+      authentik-postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/-/health/live/')\"" ]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  authentik-postgresql:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: authentik
+      POSTGRES_USER: authentik
+      POSTGRES_PASSWORD: authentik
+    volumes:
+      - authentik-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U authentik -d authentik" ]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2026.2.3
+    restart: unless-stopped
+    command: worker
+    user: root
+    environment:
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_SECRET_KEY: changemechangemechangemechangeme
+      AUTHENTIK_BOOTSTRAP_PASSWORD: portabase-bootstrap-password
+      AUTHENTIK_BOOTSTRAP_TOKEN: portabase-bootstrap-token
+      AUTHENTIK_BOOTSTRAP_EMAIL: akadmin@portabase.local
+    volumes:
+      - ./seeds/authentik/blueprints/portabase-oidc.yaml:/blueprints/portabase-oidc.yaml:ro
+    shm_size: 512mb
+    depends_on:
+      authentik-postgresql:
+        condition: service_healthy
+
+  authentik-bootstrap:
+    image: ghcr.io/goauthentik/server:2026.2.3
+    entrypoint: [ "/bin/sh", "/seeds/bootstrap.sh" ]
+    environment:
+      AUTHENTIK_BASE_URL: http://authentik-server:9000
+      AUTHENTIK_API_TOKEN: portabase-bootstrap-token
+      AUTHENTIK_DISCOVERY_PATH: /application/o/portabase/.well-known/openid-configuration
+      AUTHENTIK_SECRET_KEY: changemechangemechangemechangeme
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgresql
+      AUTHENTIK_POSTGRESQL__USER: authentik
+      AUTHENTIK_POSTGRESQL__PASSWORD: authentik
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_BOOTSTRAP_EMAIL: akadmin@portabase.local
+      AUTHENTIK_TEST_USER_USERNAME: auth.entik@example.com
+      AUTHENTIK_TEST_USER_EMAIL: auth.entik@example.com
+      AUTHENTIK_TEST_USER_NAME: Portabase Admin
+      AUTHENTIK_TEST_USER_PASSWORD: testPASS123456!
+      AUTHENTIK_TEST_GROUP: admin
+      AUTHENTIK_PROVIDER_NAME: portabase
+      AUTHENTIK_APPLICATION_NAME: Portabase
+      AUTHENTIK_APPLICATION_SLUG: portabase
+      AUTHENTIK_CLIENT_ID: portabase
+      AUTHENTIK_CLIENT_SECRET: portabase-e2e-secret
+      AUTHENTIK_REDIRECT_URI: http://localhost:8887/api/auth/sso/callback/authentik
+    volumes:
+      - ./seeds/authentik:/seeds:ro
+    depends_on:
+      authentik-server:
+        condition: service_healthy
+      authentik-worker:
+        condition: service_healthy
+
+volumes:
+  keycloak-data:
+  pocket-id-data:
+  authentik-data:

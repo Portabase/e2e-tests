@@ -1,0 +1,45 @@
+name: portabase-server
+
+services:
+
+  app:
+    image: portabase/portabase:latest
+    ports:
+      - '8887:80'
+    environment:
+      - TZ=Europe/Paris
+    env_file:
+      - .env
+    volumes:
+      - portabase-server-data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost/api/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    extra_hosts:
+      - "localhost:host-gateway"
+
+  db:
+    image: postgres:17-alpine
+    ports:
+      - "5433:5432"
+    volumes:
+      - portabase-server-postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U devuser -d devdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  portabase-server-data:
+  portabase-server-postgres-data:

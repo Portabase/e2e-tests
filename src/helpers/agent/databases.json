@@ -1,0 +1,154 @@
+{
+  "databases": [
+    {
+      "name": "PostgreSQL 18",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-18",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef001"
+    },
+    {
+      "name": "PostgreSQL 17",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-17",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef002"
+    },
+    {
+      "name": "PostgreSQL 16",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-16",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef003"
+    },
+    {
+      "name": "PostgreSQL 15",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-15",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef004"
+    },
+    {
+      "name": "PostgreSQL 14",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-14",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef005"
+    },
+    {
+      "name": "PostgreSQL 13",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-13",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef006"
+    },
+    {
+      "name": "PostgreSQL 12",
+      "database": "backup_e2e",
+      "type": "postgresql",
+      "username": "backup",
+      "password": "backup",
+      "port": 5432,
+      "host": "postgresql-12",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef007"
+    },
+    {
+      "name": "MySQL 8.4",
+      "database": "backup_e2e",
+      "type": "mysql",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mysql-8.4",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef008"
+    },
+    {
+      "name": "MySQL 8.0",
+      "database": "backup_e2e",
+      "type": "mysql",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mysql-8.0",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef009"
+    },
+    {
+      "name": "MariaDB 11.4",
+      "database": "backup_e2e",
+      "type": "mariadb",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mariadb-11.4",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef010"
+    },
+    {
+      "name": "MariaDB 11.3",
+      "database": "backup_e2e",
+      "type": "mariadb",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mariadb-11.3",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef011"
+    },
+    {
+      "name": "MariaDB 11.2",
+      "database": "backup_e2e",
+      "type": "mariadb",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mariadb-11.2",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef012"
+    },
+    {
+      "name": "MariaDB 11.1",
+      "database": "backup_e2e",
+      "type": "mariadb",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mariadb-11.1",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef013"
+    },
+    {
+      "name": "MariaDB 11.0",
+      "database": "backup_e2e",
+      "type": "mariadb",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mariadb-11.0",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef014"
+    },
+    {
+      "name": "MariaDB 10.11",
+      "database": "backup_e2e",
+      "type": "mariadb",
+      "username": "backup",
+      "password": "backup",
+      "port": 3306,
+      "host": "mariadb-10.11",
+      "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef015"
+    }
+  ]
+}
