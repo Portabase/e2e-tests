@@ -49,8 +49,9 @@ test.describe.serial("Invalid channel", () => {
         await expect(page.getByRole("heading", {name: "Notification channels"})).toBeVisible();
         await create(page, "Webhook", invalidChannelName, async (page) => {
             await page.getByLabel(/Webhook URL/).fill("https://webhook.example.com/api/wrong-webhook");
+            await page.getByRole("button", { name: "Add Header" }).click();
             await page.getByLabel(/^Header Name$/).fill(getEnv("E2E_NOTIFICATION_WEBHOOK_SECRET_HEADER"));
-            await page.getByLabel(/^Secret Value$/).fill("wrong-webhook-secret");
+            await page.getByLabel(/^Header Value$/).fill("wrong-webhook-secret");
         });
         await submit(page);
         await expect(page.getByText("Notification channel has been successfully created.")).toBeVisible();
