@@ -3,7 +3,7 @@ name: portabase-agent-b
 services:
 
   app:
-    image: portabase/agent:latest
+    image: ${AGENT_IMAGE:-portabase/agent:latest}
     restart: unless-stopped
     volumes:
       - ./databases.toml:/config/config.toml

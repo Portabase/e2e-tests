@@ -3,7 +3,7 @@ name: portabase-server
 services:
 
   app:
-    image: portabase/portabase:latest
+    image: ${SERVER_IMAGE:-portabase/portabase:latest}
     ports:
       - '8887:80'
     environment:
