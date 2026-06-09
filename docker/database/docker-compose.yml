@@ -295,7 +295,7 @@ services:
 
   redis-8:
     <<: *redis-common
-    image: redis:8
+    image: redis:8-alpine
     expose:
       - "6379"
     volumes:
@@ -303,7 +303,7 @@ services:
 
   redis-7:
     <<: *redis-common
-    image: redis:7
+    image: redis:7-alpine
     expose:
       - "6379"
     volumes:
@@ -311,7 +311,7 @@ services:
 
   valkey-8:
     <<: *valkey-common
-    image: valkey/valkey:8
+    image: valkey/valkey:8-alpine
     expose:
       - "6379"
     volumes:
@@ -319,7 +319,7 @@ services:
 
   valkey-7:
     <<: *valkey-common
-    image: valkey/valkey:7
+    image: valkey/valkey:7-alpine
     expose:
       - "6379"
     volumes:
