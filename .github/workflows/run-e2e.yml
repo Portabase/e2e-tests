@@ -91,16 +91,12 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: read
-    defaults:
-      run:
-        working-directory: e2e-tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: ${{ job.workflow_repository }}
           ref: ${{ job.workflow_sha }}
-          path: e2e-tests
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -110,7 +106,7 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: e2e-tests/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install just
         run: sudo apt-get update && sudo apt-get install -y just
@@ -169,5 +165,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: e2e-tests/playwright-report/
+          path: playwright-report/
           retention-days: 7
