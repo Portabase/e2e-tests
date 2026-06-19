@@ -1,5 +1,5 @@
 import {test} from "@playwright/test";
-import fs from "fs";
+import * as fs from "fs";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 
 test.describe(() => {

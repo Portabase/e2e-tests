@@ -1,5 +1,5 @@
 import {expect, test} from "@playwright/test";
-import fs from "fs";
+import * as fs from "fs";
 import {logout} from "./helpers/auth";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 
