@@ -1,4 +1,5 @@
-import {expect, Locator, Page} from "@playwright/test";
+import {Locator, Page} from "@playwright/test";
+import {openOverlay} from "./ui";
 
 
 /**
@@ -41,15 +42,8 @@ export async function create(
         trigger = (await addButton.isVisible()) ? addButton : emptyStateButton;
     }
 
-    // The dashboard is a hydrated Next.js page: a click can land after the trigger is
-    // actionable but before React wires its onClick, so the dialog silently never opens
-    // and the provider lookup below times out. Retry the trigger until the dialog is
-    // actually visible. Skip the click when it is already open to avoid toggling it shut.
     const dialog = page.getByRole("dialog", {name: "Add Storage Channel"});
-    await expect(async () => {
-        if (!(await dialog.isVisible())) await trigger.click();
-        await expect(dialog).toBeVisible({timeout: 2000});
-    }).toPass({timeout: 15000});
+    await openOverlay(trigger, dialog);
 
     await dialog.getByText(provider, {exact: true}).click();
     await page.getByLabel(/Channel Name/).fill(channelName);
