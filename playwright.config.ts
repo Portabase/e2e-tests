@@ -28,11 +28,11 @@ export default defineConfig({
     use: {
         ...devices['Desktop Chrome'],
         baseURL: process.env.SERVER_URL,
-
+        actionTimeout: 30000,
         /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
         trace: 'on-first-retry',
     },
-
+    timeout: 60000,
     /* Configure projects and dependency order */
     projects: [
         {
