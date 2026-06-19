@@ -1,6 +1,7 @@
 import {expect, test} from "@playwright/test";
 import {users} from "./helpers/auth";
 import {changeUserRole, create, switchToDefault} from "./helpers/access-management";
+import {openOverlay} from "./helpers/ui";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 
 test.use({storageState: LOCAL_STORAGE_PATH});
@@ -41,8 +42,9 @@ test.describe.serial(() => {
 
         const userRow = page.locator("tr").filter({hasText: users.normal.email}).first();
         await expect(userRow).toBeVisible();
-        await userRow.locator("button").last().click();
-        await page.getByRole('menuitem', {name: 'Role'}).click();
+        const roleMenuItem = page.getByRole('menuitem', {name: 'Role'});
+        await openOverlay(userRow.locator("button").last(), roleMenuItem);
+        await roleMenuItem.click();
 
         await expect(page.getByRole("heading", {name: "Change the user's role"})).toBeVisible();
 

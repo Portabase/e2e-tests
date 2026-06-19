@@ -1,4 +1,5 @@
 import {Page} from "@playwright/test";
+import {openOverlay} from "./ui";
 
 export function getUserRow(page: Page, email: string) {
     return page.locator("tr").filter({hasText: email}).first();
@@ -20,14 +21,17 @@ export function getOrganizationRow(page: Page, organizationName: string) {
  * - any `/dashboard/**` page for "sidebar" entrypoint
  */
 export async function create(page: Page, entrypoint: "button" | "sidebar", name: string) {
+    const nameField = page.getByLabel("Name");
+
     if (entrypoint === "sidebar") {
-        await page.getByRole("button", {name: "Default Organization"}).click();
-        await page.getByText("Create organization", {exact: true}).click();
+        const createItem = page.getByText("Create organization", {exact: true});
+        await openOverlay(page.getByRole("button", {name: "Default Organization"}), createItem);
+        await openOverlay(createItem, nameField);
     } else {
-        await page.getByRole("button", {name: /Create a new organization/i}).click();
+        await openOverlay(page.getByRole("button", {name: /Create a new organization/i}), nameField);
     }
 
-    await page.getByLabel("Name").fill(name);
+    await nameField.fill(name);
     await page.getByRole("button", {name: "Create"}).click();
 }
 
@@ -37,8 +41,9 @@ export async function create(page: Page, entrypoint: "button" | "sidebar", name:
  * Executes from: any `/dashboard/**` if the sidebar is visible.
  */
 export async function switchTo(page: Page, name: string) {
-    await page.getByTestId('organization-dropdown').click();
-    await page.getByRole('menuitem', {name: name}).click();
+    const item = page.getByRole('menuitem', {name: name});
+    await openOverlay(page.getByTestId('organization-dropdown'), item);
+    await item.click();
 }
 
 /**
