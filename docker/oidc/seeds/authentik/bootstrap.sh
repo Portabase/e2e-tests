@@ -31,7 +31,10 @@ def wait_for_live() -> None:
 wait_for_live()
 PY
 
-ak shell -c "import os; from authentik.core.models import Group, User; user = User.objects.get(email=os.environ['AUTHENTIK_BOOTSTRAP_EMAIL']); group = Group.objects.get(name='authentik Admins'); group.users.add(user); print(f'Granted {user.username} authentik Admins membership')" >/dev/null
+# NOTE: do not add an un-retried `User.objects.get(akadmin)` here. The akadmin user is
+# created asynchronously by the authentik-worker after migrations, so a one-shot query
+# races that creation and, under `set -e`, fails the whole seed with User.DoesNotExist.
+# reconcile_seed_objects() below already grants akadmin membership inside a retry loop.
 
 BOOTSTRAP_ATTEMPTS="${AUTHENTIK_BOOTSTRAP_ATTEMPTS:-90}"
 BOOTSTRAP_SLEEP_SECONDS="${AUTHENTIK_BOOTSTRAP_SLEEP_SECONDS:-2}"
