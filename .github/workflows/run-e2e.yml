@@ -181,3 +181,9 @@ jobs:
         run: |
           df -h
           docker system df || true
+
+      - name: Stop and remove container
+        if: always()
+        run: |
+          docker ps -aq | xargs -r docker rm -f
+          docker network rm portabase || true

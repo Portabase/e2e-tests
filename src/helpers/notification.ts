@@ -1,4 +1,4 @@
-import {Page} from "@playwright/test";
+import {expect, Locator, Page} from "@playwright/test";
 
 
 /**
@@ -45,22 +45,34 @@ export async function remove(page: Page, channelName: string) {
  */
 export async function create(
     page: Page,
-    provider: "Discord" | "Gotify" | "ntfy.sh" | "Slack" | "Email" | "Telegram" | "Webhook" | "Microsoft Teams",
+    provider: "Discord" | "Gotify" | "ntfy.sh" | "Slack" | "Email" | "Telegram" | "Webhook" | "Microsoft Teams" | "Pushover",
     channelName: string,
     fillConfig: (page: Page) => Promise<void>,
     entrypoint: "auto" | "emptyState" | "button" = "auto",
 ) {
-    if (entrypoint === "auto") {
-        const addButton = page.getByRole("button", {name: /Add notification channel/i});
-        if (await addButton.isVisible()) await page.getByRole("button", {name: /Add notification channel/i}).click();
-        else await page.getByRole("button", {name: /No notification channels configured yet/i}).click();
-    } else if (entrypoint === "button") {
-        await page.getByRole("button", {name: /Add notification channel/i}).click();
+    const addButton = page.getByRole("button", {name: /Add notification channel/i});
+    const emptyStateButton = page.getByRole("button", {name: /No notification channels configured yet/i});
+
+    let trigger: Locator;
+    if (entrypoint === "button") {
+        trigger = addButton;
     } else if (entrypoint === "emptyState") {
-        await page.getByRole("button", {name: /No notification channels configured yet/i}).click();
+        trigger = emptyStateButton;
+    } else {
+        trigger = (await addButton.isVisible()) ? addButton : emptyStateButton;
     }
 
-    await page.getByText(provider, {exact: true}).click();
+    // The dashboard is a hydrated Next.js page: a click can land after the trigger is
+    // actionable but before React wires its onClick, so the dialog silently never opens
+    // and the provider lookup below times out. Retry the trigger until the dialog is
+    // actually visible. Skip the click when it is already open to avoid toggling it shut.
+    const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
+    await expect(async () => {
+        if (!(await dialog.isVisible())) await trigger.click();
+        await expect(dialog).toBeVisible({timeout: 2000});
+    }).toPass({timeout: 15000});
+
+    await dialog.getByText(provider, {exact: true}).click();
     await page.getByLabel(/Channel Name/).fill(channelName);
     await fillConfig(page);
 }
