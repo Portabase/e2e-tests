@@ -1,5 +1,6 @@
 import {expect, test} from "@playwright/test";
 import {create, edit, get, launch, remove} from "./helpers/agent";
+import {navigateVia} from "./helpers/ui";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 
 const agent = {
@@ -14,7 +15,9 @@ test.describe.serial(() => {
     test("Create agent A from empty state", async ({page}) => {
         await page.goto("/dashboard/agents");
         await expect(page.getByRole("heading", {name: "Agents"})).toBeVisible();
-        await expect(page.getByText("Create new Agent", {exact: true})).toBeVisible();
+        // Agents list (and its empty state) is client-rendered after the first agents query;
+        // on a cold server that can exceed the default 5s assertion timeout.
+        await expect(page.getByText("Create new Agent", {exact: true})).toBeVisible({timeout: 15000});
         await create(page, "emptyState", "Agent A", agent.description);
 
         await expect(page.getByText("Success creating agent")).toBeVisible();
@@ -68,9 +71,7 @@ test.describe.serial(() => {
     test("Launch agent A", async ({page}) => {
         await page.goto("/dashboard/agents");
         await expect(page.getByRole("heading", {name: "Agents"})).toBeVisible();
-        await get(page, "Agent A").click();
-
-        await expect(page).toHaveURL(/\/dashboard\/agents\/.+/);
+        await navigateVia(page, get(page, "Agent A"), /\/dashboard\/agents\/.+/);
         await expect(page.getByText("Agent A Updated", {exact: true})).toBeVisible();
         await expect(page.getByText("Registration & Setup")).toBeVisible();
 
@@ -86,9 +87,7 @@ test.describe.serial(() => {
     test("Launch agent B", async ({page}) => {
         await page.goto("/dashboard/agents");
         await expect(page.getByRole("heading", {name: "Agents"})).toBeVisible();
-        await get(page, "Agent B").click();
-
-        await expect(page).toHaveURL(/\/dashboard\/agents\/.+/);
+        await navigateVia(page, get(page, "Agent B"), /\/dashboard\/agents\/.+/);
         await expect(page.getByText("Agent B", {exact: true})).toBeVisible();
         await expect(page.getByText("Registration & Setup")).toBeVisible();
 
