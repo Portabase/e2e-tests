@@ -60,11 +60,19 @@ test.describe.serial(() => {
 
         const organizationRow = page.locator("tr").filter({hasText: firstOrganization}).first();
         await expect(organizationRow).toBeVisible();
-        await organizationRow.locator('a[href*="/dashboard/admin/organizations/"], a[href*="organizations/"]').click();
+        const organizationLink = organizationRow.locator('a[href*="organizations/"]').first();
+        await expect(organizationLink).toBeVisible();
+        // Row link uses a relative href ("organizations/<id>"); clicking a not-yet-hydrated
+        // Next <Link> can fail to navigate and leave us on the list page. Resolve the href
+        // and navigate explicitly so the detail page reliably loads.
+        const organizationHref = (await organizationLink.getAttribute("href")) ?? "";
+        await page.goto(organizationHref.startsWith("/") ? organizationHref : `/dashboard/admin/${organizationHref}`);
 
         await expect(page.getByText(firstOrganization, {exact: true})).toBeVisible();
-        await page.getByRole("button", {name: /Add member/i}).click();
-        await expect(page.getByRole("heading", {name: "Add member to your organization"})).toBeVisible();
+        await openOverlay(
+            page.getByRole("button", {name: /Add member/i}),
+            page.getByRole("heading", {name: "Add member to your organization"}),
+        );
 
         await page.getByPlaceholder("Enter a user email").fill(users.normal.email);
         await page.getByRole("option", {name: new RegExp(users.normal.email, "i")}).click();
