@@ -1,5 +1,8 @@
 import {Page} from "@playwright/test";
 import {execSync} from "node:child_process";
+import {navigateVia} from "./ui";
+
+const AGENT_DETAIL_URL = /\/dashboard\/agents\/.+/;
 
 
 /**
@@ -43,7 +46,7 @@ export async function create(page: Page, entrypoint: "auto" | "emptyState" | "bu
  * Executes from: `/dashboard/agents/[agentId]`.
  */
 export async function edit(page: Page, currentName: string, updatedName: string, updatedDescription: string) {
-    await get(page, currentName).click();
+    await navigateVia(page, get(page, currentName), AGENT_DETAIL_URL);
 
     await page
         .getByRole("button", {name: /Delete Agent/i})
@@ -61,7 +64,7 @@ export async function edit(page: Page, currentName: string, updatedName: string,
  * Executes from: `/dashboard/agents/[agentId]`.
  */
 export async function remove(page: Page, name: string) {
-    await get(page, name).click();
+    await navigateVia(page, get(page, name), AGENT_DETAIL_URL);
     await page.getByRole("button", {name: /Delete Agent/i}).click();
     await page.getByRole("button", {name: "Delete", exact: true}).click();
 }
