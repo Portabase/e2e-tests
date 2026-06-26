@@ -11,7 +11,7 @@ export async function createAccount(
   await page.getByLabel("Last name").fill(lastName);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Create account" }).click();
+  await page.getByRole("button", { name: "Create account", exact: true}).click();
 }
 
 export async function createOrg(page: Page, name: string) {
