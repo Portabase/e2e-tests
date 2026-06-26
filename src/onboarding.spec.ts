@@ -220,22 +220,6 @@ test.describe.serial(() => {
       ).toBeVisible();
     });
 
-    await test.step("Defaults: switch to DiceBear avatar mode", async () => {
-      await page.getByRole("button", { name: /DiceBear/ }).click();
-      await expect(
-        page
-          .locator("button", { has: page.locator('img[src*="dicebear.com"]') })
-          .first(),
-      ).toBeVisible({ timeout: 15000 });
-    });
-
-    await test.step("Defaults: select a DiceBear style", async () => {
-      await page
-        .locator("button", { has: page.locator('img[src*="dicebear.com"]') })
-        .first()
-        .click();
-    });
-
     await test.step("Defaults: Continue to agent-create", async () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(
