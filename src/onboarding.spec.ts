@@ -48,7 +48,7 @@ test.describe.serial(() => {
       page.getByRole("heading", { name: "Create your account" }),
     ).toBeVisible();
 
-    await page.getByRole("button", { name: "Create account" }).click();
+    await page.getByRole("button", { name: "Create account", exact: true }).click();
     await expect(page.getByText("First name required")).toBeVisible();
     await expect(page.getByText("Last name required")).toBeVisible();
   });
@@ -74,15 +74,11 @@ test.describe.serial(() => {
         user.email,
         user.password,
       );
-      const securityHeading = page.getByRole("heading", {
-        name: "Secure your account",
-      });
-      const preferencesHeading = page.getByRole("heading", {
-        name: "Your preferences",
-      });
-      await expect(securityHeading.or(preferencesHeading)).toBeVisible({
-        timeout: 15000,
-      });
+      await expect(
+        page
+          .getByRole("heading", { name: "Secure your account" })
+          .or(page.getByRole("heading", { name: "Create your organisation" })),
+      ).toBeVisible({ timeout: 15000 });
     });
 
     await test.step("Skip security step if present", async () => {
@@ -92,13 +88,6 @@ test.describe.serial(() => {
       if (await securityHeading.isVisible()) {
         await page.getByRole("button", { name: "Skip for now" }).click();
       }
-      await expect(
-        page.getByRole("heading", { name: "Your preferences" }),
-      ).toBeVisible();
-    });
-
-    await test.step("Continue through preferences", async () => {
-      await page.getByRole("button", { name: "Continue" }).click();
       await expect(
         page.getByRole("heading", { name: "Create your organisation" }),
       ).toBeVisible();
