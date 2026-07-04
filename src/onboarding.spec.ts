@@ -77,7 +77,7 @@ test.describe.serial(() => {
       await expect(
         page
           .getByRole("heading", { name: "Secure your account" })
-          .or(page.getByRole("heading", { name: "Create your organisation" })),
+          .or(page.getByRole("heading", { name: "Your preferences" })),
       ).toBeVisible({ timeout: 15000 });
     });
 
@@ -88,6 +88,13 @@ test.describe.serial(() => {
       if (await securityHeading.isVisible()) {
         await page.getByRole("button", { name: "Skip for now" }).click();
       }
+      await expect(
+        page.getByRole("heading", { name: "Your preferences" }),
+      ).toBeVisible();
+    });
+
+    await test.step("Preferences: continue to org-create", async () => {
+      await page.getByRole("button", { name: "Continue" }).click();
       await expect(
         page.getByRole("heading", { name: "Create your organisation" }),
       ).toBeVisible();
