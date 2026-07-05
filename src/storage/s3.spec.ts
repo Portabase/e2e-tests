@@ -2,7 +2,7 @@ import {expect, test} from "@playwright/test";
 import {getEnv} from "../helpers/env";
 import {LOCAL_STORAGE_PATH} from "../helpers/session";
 import {
-    cancel, create, get, remove, submit, testConnection, testFromEdit,
+    cancel, create, edit, get, remove, submit, testConnection, testFromEdit,
 } from "../helpers/storage";
 
 test.use({storageState: LOCAL_STORAGE_PATH});
@@ -13,6 +13,7 @@ const providers = [
         requiredChannelName: "AWS S3 E2E Required",
         optionalChannelName: "AWS S3 E2E Optional",
         invalidChannelName: "AWS S3 E2E Invalid",
+        prefix: "e2e/aws-s3-prefix",
         endpointUrl: getEnv("E2E_STORAGE_AWS_S3_ENDPOINT_URL"),
         region: getEnv("E2E_STORAGE_AWS_S3_REGION"),
         accessKey: getEnv("E2E_STORAGE_AWS_S3_ACCESS_KEY"),
@@ -27,6 +28,7 @@ const providers = [
         requiredChannelName: "Cloudflare R2 E2E Required",
         optionalChannelName: "Cloudflare R2 E2E Optional",
         invalidChannelName: "Cloudflare R2 E2E Invalid",
+        prefix: "e2e/r2-prefix",
         endpointUrl: getEnv("E2E_STORAGE_R2_ENDPOINT_URL"),
         region: getEnv("E2E_STORAGE_R2_REGION"),
         accessKey: getEnv("E2E_STORAGE_R2_ACCESS_KEY"),
@@ -98,6 +100,7 @@ for (const provider of providers) {
                     await page.getByLabel(/Access Key/).fill(provider.invalidAccessKey);
                     await page.getByLabel(/Secret Key/).fill(provider.invalidSecretKey);
                     await page.getByLabel(/Bucket name/).fill(provider.bucketName);
+                    await page.getByLabel(/^Prefix$/).fill(provider.prefix);
                     await page.getByLabel(/^Port$/).fill(provider.port);
                 });
                 await expect(page.getByRole("heading", {name: "Add Storage Channel"})).toBeVisible();
@@ -106,6 +109,11 @@ for (const provider of providers) {
                 await submit(page);
                 await expect(page.getByText("Storage channel has been successfully created.")).toBeVisible();
                 await expect(get(page, provider.invalidChannelName)).toBeVisible();
+
+                await edit(page, provider.invalidChannelName);
+                await expect(page.getByRole("heading", {name: "Edit Storage Channel"})).toBeVisible();
+                await expect(page.getByLabel(/^Prefix$/)).toHaveValue(provider.prefix);
+                await cancel(page);
             });
 
             test(`Delete invalid ${provider.title} channel`, async ({page}) => {
