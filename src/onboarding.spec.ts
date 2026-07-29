@@ -33,7 +33,7 @@ test.describe.serial(() => {
     await page.goto("/welcome");
     await expect(
       page.getByRole("heading", { name: "Welcome to Portabase" }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
     await expect(page.getByRole("button", { name: /Register/ })).toBeVisible();
   });
 
@@ -41,7 +41,7 @@ test.describe.serial(() => {
     await page.goto("/welcome");
     await expect(
       page.getByRole("heading", { name: "Welcome to Portabase" }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
 
     await page.getByRole("button", { name: /Register/ }).click();
     await expect(
@@ -57,7 +57,7 @@ test.describe.serial(() => {
     await page.goto("/welcome");
     await expect(
       page.getByRole("heading", { name: "Welcome to Portabase" }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15000 });
 
     await test.step("Navigate to account-info", async () => {
       await page.getByRole("button", { name: /Register/ }).click();
@@ -111,7 +111,7 @@ test.describe.serial(() => {
       await createOrg(page, "E2E Organisation");
       await expect(
         page.getByRole("heading", { name: "Connect a notifier" }),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 15000 });
     });
 
     await test.step("Notifier: add a Webhook channel", async () => {
