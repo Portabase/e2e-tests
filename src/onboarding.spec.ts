@@ -96,7 +96,7 @@ test.describe.serial(() => {
     await test.step("Preferences: continue to org-create", async () => {
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(
-        page.getByRole("heading", { name: "Create your organisation" }),
+        page.getByRole("heading", { name: "Name your default organisation" }),
       ).toBeVisible();
     });
 
