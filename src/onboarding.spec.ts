@@ -101,6 +101,7 @@ test.describe.serial(() => {
     });
 
     await test.step("org-create: Continue disabled without a name", async () => {
+      await page.getByLabel("Organisation name").clear();
       await expect(
         page.getByRole("button", { name: "Continue" }),
       ).toBeDisabled();
