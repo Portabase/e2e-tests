@@ -80,3 +80,11 @@ e2e-onboarding-manual:
 e2e-onboarding-auto:
     @echo "Launching dashboard tests in non-interactive mode..."
     @SKIP_ONBOARDING=false CI=true pnpm playwright test --project=onboarding || (just e2e-clean; exit 1)
+
+e2e-cli-manual:
+    @echo "Installing CLI..."
+    @curl -sL https://portabase.io/install | bash
+    @portabase --version
+    @echo "Launching CLI tests in interactive mode..."
+    @SKIP_ONBOARDING=false pnpm playwright test --ui --project=cli || (just e2e-clean; exit 1)
+    @echo "All CLI tests completed successfully"

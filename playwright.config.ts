@@ -20,6 +20,10 @@ export default defineConfig({
   timeout: 60000,
   projects: [
     {
+      name: "cli",
+      testMatch: "**/cli/**/*.spec.ts",
+    },
+    {
       name: "setup",
       testMatch: "**/setup.spec.ts",
     },
