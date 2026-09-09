@@ -131,7 +131,7 @@ services:
     container_name: portabase-e2e-web
     ports: ["3082:80"]
     volumes:
-      - web-test-data:/usr/share/nginx/html
+      - web-test-backup-e2e-data:/usr/share/nginx/html
     networks: [portabase]
 
   postgresql-18:
@@ -363,8 +363,7 @@ services:
       - sqlite-3.45-backup-e2e-data:/data
 
 volumes:
-  web-test-data:
-    name: portabase-e2e-web-data
+  web-test-backup-e2e-data:
   postgresql-18-backup-e2e-data:
   postgresql-17-backup-e2e-data:
   postgresql-16-backup-e2e-data:
