@@ -61,8 +61,7 @@ test.describe.serial(() => {
     });
 });
 
-test.describe("Backup projects and keep only the latest generation", () => {
-    test.describe.configure({mode: "serial", retries: 0});
+test.describe.serial("Backup projects and keep only the latest generation", () => {
     for (const group of projectGroups) {
         test(`${group.name}: two successful backup rounds and retention`, async ({page, request}) => {
             test.setTimeout(20 * 60_000);

@@ -4,16 +4,18 @@ import {bucket, connectLocalStorage, localStorage} from "../helpers/local-storag
 
 test.use({storageState: LOCAL_STORAGE_PATH});
 
-test("Connect valid Azurite storage", async ({page}) => {
-    await connectLocalStorage(page, "Azure Blob Storage", localStorage.azure.name, async () => {
-        await page.getByLabel("Connection String *", {exact: true}).fill(localStorage.azure.connectionString);
-        await page.getByLabel(/Container Name/).fill(bucket);
-    }, true);
-});
+test.describe.serial(() => {
+    test("Connect valid Azurite storage", async ({page}) => {
+        await connectLocalStorage(page, "Azure Blob Storage", localStorage.azure.name, async () => {
+            await page.getByLabel("Connection String *", {exact: true}).fill(localStorage.azure.connectionString);
+            await page.getByLabel(/Container Name/).fill(bucket);
+        }, true);
+    });
 
-test("Connect invalid Azurite storage", async ({page}) => {
-    await connectLocalStorage(page, "Azure Blob Storage", "Azurite Invalid", async () => {
-        await page.getByLabel("Connection String *", {exact: true}).fill(localStorage.azure.connectionString);
-        await page.getByLabel(/Container Name/).fill("missing-container");
-    }, false);
+    test("Connect invalid Azurite storage", async ({page}) => {
+        await connectLocalStorage(page, "Azure Blob Storage", "Azurite Invalid", async () => {
+            await page.getByLabel("Connection String *", {exact: true}).fill(localStorage.azure.connectionString);
+            await page.getByLabel(/Container Name/).fill("missing-container");
+        }, false);
+    });
 });
