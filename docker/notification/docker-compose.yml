@@ -6,7 +6,8 @@ services:
     command: serve
     ports:
       - "3080:80"
-    networks: [portabase]
+    networks:
+      - portabase
 
   apprise:
     image: caronc/apprise:1.5
@@ -14,7 +15,8 @@ services:
       APPRISE_STATEFUL_MODE: simple
     ports:
       - "3081:8000"
-    networks: [portabase]
+    networks:
+      - portabase
 
   apprise-init:
     profiles: [setup]
@@ -30,8 +32,10 @@ services:
       - --data-urlencode
       - urls=ntfy://ntfy/portabase-e2e
       - http://apprise:8000/add/portabase-e2e
-    networks: [portabase]
+    networks:
+      - portabase
 
 networks:
   portabase:
+    name: portabase
     external: true
