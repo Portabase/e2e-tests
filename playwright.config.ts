@@ -1,7 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
-import {existsSync} from "node:fs";
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
@@ -22,45 +21,45 @@ export default defineConfig({
   projects: [
     {
       name: "setup",
-      testMatch: "**/setup.spec.ts",
+      testMatch: "/src/setup.spec.ts",
     },
     ...(process.env.SKIP_ONBOARDING === "false"
       ? [
           {
             name: "onboarding",
-            testMatch: "**/onboarding.spec.ts",
+            testMatch: "/src/onboarding.spec.ts",
             dependencies: ["setup"],
           },
         ]
       : []),
     {
       name: "auth",
-      testMatch: "**/auth.spec.ts",
+      testMatch: "/src/auth.spec.ts",
       dependencies: ["setup"],
     },
     {
       name: "oidc",
-      testMatch: "**/oidc.spec.ts",
+      testMatch: "/src/oidc.spec.ts",
       dependencies: ["auth"],
     },
     {
       name: "access-management",
-      testMatch: "**/access-management.spec.ts",
+      testMatch: "/src/access-management.spec.ts",
       dependencies: ["oidc"],
     },
     {
       name: "notification",
-      testMatch: "**/notification/**/*.spec.ts",
+      testMatch: "/src/notification/**/*.spec.ts",
       dependencies: ["access-management"],
     },
     {
       name: "storage",
-      testMatch: "**/storage/**/*.spec.ts",
+      testMatch: "/src/storage/**/*.spec.ts",
       dependencies: ["access-management"],
     },
     {
       name: "agent",
-      testMatch: /[\\/]src[\\/]agent\.spec\.ts$/,
+      testMatch: "/src/agent.spec.ts",
       dependencies: ["access-management"],
     },
     {
@@ -70,10 +69,8 @@ export default defineConfig({
     },
     {
       name: "api",
-      testMatch: /[\\/]src[\\/]api[\\/].*\.spec\.ts$/,
-      dependencies: ["project", ...(existsSync(path.resolve(__dirname, "src/dashboard.spec.ts")) ? ["dashboard"] : [])],
-      fullyParallel: false,
-      retries: 0,
+      testMatch: "/src/api/*.spec.ts",
+      dependencies: ["project"],
     },
     {
       name: "cleanup",

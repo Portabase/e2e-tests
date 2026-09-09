@@ -3,8 +3,8 @@
 Reference: https://portabase.io/docs/dashboard/api/introduction
 
 Enable `API_ENABLED=true` and `OPENAPI_ENABLED=true` (included in `docker/server/.env`).
-The API project runs after the project tests, and after dashboard when that feature
-branch is present, so temporary API resources do not affect the dashboard counters.
+The API project runs after the project tests, so it reuses the agents and databases
+already created by the E2E environment.
 The cleanup project waits for the API tests before revoking the shared UI session.
 
 Run the suite with `pnpm exec playwright test --project=api`. Against an already
@@ -22,11 +22,7 @@ UI, and tests missing and invalid `x-api-key` headers on every operation.
 | organisation.spec.ts | GET/POST `/organizations/{id}/agents`, DELETE `/organizations/{id}/agents/{agentId}` | Attach, list, duplicate attachment, detach and invalid IDs |
 | project.spec.ts | GET/POST `/organizations/{id}/projects`, GET/DELETE `/projects/{id}` | Create, list, read, duplicate slug, archive; reject deleting an organization with a live project |
 | database.spec.ts | GET `/databases`, GET/PATCH `/databases/{id}`, PUT `/databases/{id}/backup-policy` | Discover agent source, read, attach/detach, save/clear cron and reject invalid input |
-| database.spec.ts | GET `/databases/{id}/status`, GET/POST `/databases/{id}/backup`, GET `/databases/{id}/backup/{backupId}`, POST `/databases/{id}/restore` | Backup, poll success and storage records, mutate a SQL value, restore, verify original SQL data; invalid restore and missing backups |
-
-The database test owns a temporary organization, project, agent and PostgreSQL
-container, defined in `docker/api`. It deletes only those resources on completion.
-Its generated database ID and configuration are stored in a temporary directory.
+| database.spec.ts | GET `/databases/{id}/status`, GET/POST `/databases/{id}/backup`, GET `/databases/{id}/backup/{backupId}`, POST `/databases/{id}/restore` | Backup an existing managed database, poll success and storage records, restore it; invalid restore and missing backups |
 
 The backup-policy request uses `schedule`, as accepted by the route implementation.
 The OpenAPI version originally inspected described this property as `backupPolicy`;
