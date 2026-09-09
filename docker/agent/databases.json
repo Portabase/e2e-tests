@@ -149,6 +149,13 @@
       "port": 3306,
       "host": "mariadb-10.11",
       "generated_id": "9f8a5b18-0f45-4b4c-a821-93d7e46ef015"
+    },
+    {
+      "name": "Docker web server",
+      "type": "docker-volume",
+      "volume_name": "portabase-e2e-web-data",
+      "container_name": "portabase-e2e-web",
+      "generated_id": "ab623145-7e45-41ec-9144-17f40334c4aa"
     }
   ]
 }

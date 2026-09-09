@@ -36,7 +36,10 @@ e2e-before:
     @echo "Starting test environment..."
     @just e2e-clean
     @docker network inspect portabase >/dev/null 2>&1 || docker network create portabase
-    @docker compose -f docker/database/docker-compose.yml up -d
+    @docker compose -f docker/data-sources/docker-compose.yml up -d
+    @docker compose -f docker/storage/docker-compose.yml up -d
+    @sh docker/storage/init-garage.sh
+    @docker compose -f docker/storage/docker-compose.yml run --rm storage-init
     @just seed-auth
 
 e2e-after:
@@ -45,9 +48,12 @@ e2e-after:
 
 e2e-clean:
     @echo "Cleaning Docker artifacts (containers, images, and volumes)..."
+    @docker compose -f docker/agent/docker-compose.agent-a.yml down --volumes
+    @docker compose -f docker/agent/docker-compose.agent-b.yml down --volumes
+    @docker compose -f docker/storage/docker-compose.yml down --volumes
     @docker compose -f docker/server/docker-compose.yml down --volumes
     @docker compose -f docker/oidc/docker-compose.yml down --volumes
-    @docker compose -f docker/database/docker-compose.yml down --volumes
+    @docker compose -f docker/data-sources/docker-compose.yml down --volumes
     @echo "Docker artifacts cleaned up successfully"
 
 e2e-auto:

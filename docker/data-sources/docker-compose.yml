@@ -104,7 +104,7 @@ x-mssql-common: &mssql-common
     test:
       [
         "CMD-SHELL",
-        "(test -x /opt/mssql-tools18/bin/sqlcmd && /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q \"SELECT 1\") || (test -x /opt/mssql-tools/bin/sqlcmd && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q \"SELECT 1\")",
+        "(test -x /opt/mssql-tools18/bin/sqlcmd && /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q \"IF DB_ID(N'backup_e2e') IS NULL CREATE DATABASE [backup_e2e]; SELECT 1\") || (test -x /opt/mssql-tools/bin/sqlcmd && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -Q \"IF DB_ID(N'backup_e2e') IS NULL CREATE DATABASE [backup_e2e]; SELECT 1\")",
       ]
     interval: 15s
     timeout: 10s
@@ -114,7 +114,8 @@ x-mssql-common: &mssql-common
     - portabase
 
 x-sqlite-common: &sqlite-common
-  command: ["/bin/sh", "-lc", "mkdir -p /data && sqlite3 /data/backup_e2e.db 'SELECT 1;' >/dev/null && tail -f /dev/null"]
+  user: "0:0"
+  command: ["/bin/sh", "-lc", "mkdir -p /data && sqlite3 /data/backup_e2e.db 'CREATE TABLE IF NOT EXISTS e2e_probe (id INTEGER PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO e2e_probe VALUES (1, 42);' >/dev/null && tail -f /dev/null"]
   healthcheck:
     test: ["CMD-SHELL", "sqlite3 /data/backup_e2e.db 'SELECT 1;' | grep 1"]
     interval: 10s
@@ -125,13 +126,21 @@ x-sqlite-common: &sqlite-common
 
 services:
 
+  web-test:
+    image: nginx:1.28-alpine
+    container_name: portabase-e2e-web
+    ports: ["3082:80"]
+    volumes:
+      - web-test-data:/usr/share/nginx/html
+    networks: [portabase]
+
   postgresql-18:
     <<: *postgresql-common
     image: postgres:18-alpine
     expose:
       - "5432"
     volumes:
-      - postgresql-18-backup-e2e-data:/var/lib/postgresql/data
+      - postgresql-18-backup-e2e-data:/var/lib/postgresql
 
   postgresql-17:
     <<: *postgresql-common
@@ -247,7 +256,7 @@ services:
 
   mongodb-8.0-auth:
     <<: *mongodb-auth-common
-    image: mongo:8.0
+    image: ${MONGODB_8_IMAGE:-mongo:8.0}
     expose:
       - "27017"
     volumes:
@@ -255,7 +264,7 @@ services:
 
   mongodb-8.0-no-auth:
     <<: *mongodb-no-auth-common
-    image: mongo:8.0
+    image: ${MONGODB_8_IMAGE:-mongo:8.0}
     expose:
       - "27017"
     volumes:
@@ -354,6 +363,8 @@ services:
       - sqlite-3.45-backup-e2e-data:/data
 
 volumes:
+  web-test-data:
+    name: portabase-e2e-web-data
   postgresql-18-backup-e2e-data:
   postgresql-17-backup-e2e-data:
   postgresql-16-backup-e2e-data:

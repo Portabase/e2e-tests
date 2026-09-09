@@ -47,3 +47,33 @@ Defaults:
 - Project flows
 - Notification integrations
 - Storage integrations
+
+## Local backup and storage fixtures
+
+`just e2e-before` starts `docker/data-sources` followed by `docker/storage`,
+initializes Garage's single-node layout and creates all test buckets/containers.
+The storage stack provides Garage (3900), RustFS (3901), Azurite (10000) and fake
+GCS (4443). Credentials in these fixtures are local test values. The invalid Azure
+and GCS tests use missing containers/buckets because fake GCS does not validate
+cloud credentials.
+
+The project tests depend on both agents and storage channels. They build six
+projects from the JSON/TOML agent inventories, assign the requested storage at
+project level, and retain one backup per source. Portabase requires a saved
+schedule to expose retention settings; the tests place that schedule one week
+ahead, so only the two explicit `Select all` / `Backup` rounds execute during the
+run. They compare backup references, wait 60 seconds, refresh, and assert that the
+first reference is Deleted and the second is the only Available backup.
+
+The Docker fixture is an nginx container with a named content volume. Its test
+also changes the served page, restores the latest volume backup and checks the
+original HTTP content. Agent A mounts the Docker socket for volume operations;
+Agent B mounts each SQLite source volume separately.
+
+The full source matrix includes several versions of PostgreSQL, MySQL/MariaDB,
+MongoDB and MSSQL. Allow sufficient disk space for all images and database files.
+
+MongoDB 8.0 currently refuses to start on Linux kernels 6.19+ (SERVER-121912).
+`MONGODB_8_IMAGE` can select an alternate 8.0 patch image for local compatibility;
+the default remains `mongo:8.0`. For example, this test environment was checked
+with `MONGODB_8_IMAGE=mongo:8.0.4` where the default image could not start.

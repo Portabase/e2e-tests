@@ -99,4 +99,19 @@ test.describe.serial(() => {
 
         await expect(page.getByRole("heading", { name: "Managed Databases" })).toBeVisible({ timeout: 20_000 });
     });
+    test("Attach both agents to Default Organization for project backups", async ({page}) => {
+        for (const name of ["Agent A Updated", "Agent B"]) {
+            await page.goto("/dashboard/agents");
+            await navigateVia(page, get(page, name), /\/dashboard\/agents\/.+/);
+            await page.getByRole("button", {name: /Delete Agent/i})
+                .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]").click();
+            await page.getByRole("tab", {name: "Organizations", exact: true}).click();
+            await page.getByRole("button", {name: "Select organization(s)"}).click();
+            await page.getByRole("option", {name: "Default Organization", exact: true}).click();
+            await page.getByRole("option", {name: "Close", exact: true}).click();
+            await page.getByRole("button", {name: "Save", exact: true}).click();
+            await expect(page.getByText("Agent organizations has been successfully updated.")).toBeVisible();
+            await page.getByRole("dialog").getByRole("button", {name: "Close", exact: true}).click();
+        }
+    });
 });

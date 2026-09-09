@@ -65,7 +65,7 @@ export default defineConfig({
     {
       name: "project",
       testMatch: "**/project.spec.ts",
-      dependencies: ["agent"],
+      dependencies: ["agent", "storage"],
     },
     {
       name: "cleanup",

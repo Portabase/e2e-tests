@@ -1,4 +1,5 @@
 import {expect, test} from "@playwright/test";
+import {bucket, connectLocalStorage, localStorage} from "../helpers/local-storage";
 import {getEnv} from "../helpers/env";
 import {LOCAL_STORAGE_PATH} from "../helpers/session";
 import {
@@ -116,6 +117,20 @@ for (const provider of providers) {
                 await expect(page.getByText("Storage channel has been successfully removed.")).toBeVisible();
                 await expect(page.getByText(provider.invalidChannelName)).toHaveCount(0);
             });
+        });
+    });
+}
+
+for (const provider of [localStorage.garage, localStorage.rustfs]) {
+    test(`Connect ${provider.name} storage`, async ({page}) => {
+        await connectLocalStorage(page, "S3", provider.name, async () => {
+            await page.getByLabel(/Endpoint URL/).fill(provider.endpoint);
+            await page.getByRole("switch", {name: "Use SSL"}).uncheck();
+            await page.getByLabel(/^Port$/).fill(provider.port);
+            await page.getByLabel(/^Region$/).fill(provider.region);
+            await page.getByLabel(/Access Key/).fill(provider.accessKey);
+            await page.getByLabel(/Secret Key/).fill(provider.secretKey);
+            await page.getByLabel(/Bucket name/).fill(bucket);
         });
     });
 }
