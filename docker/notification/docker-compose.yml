@@ -2,14 +2,14 @@ name: portabase-notification
 
 services:
   ntfy:
-    image: binwiederhier/ntfy:v2.14.0
+    image: binwiederhier/ntfy:v2.28.0
     command: serve
     ports:
       - "3080:80"
     networks: [portabase]
 
   apprise:
-    image: caronc/apprise:1.3
+    image: caronc/apprise:1.5
     environment:
       APPRISE_STATEFUL_MODE: simple
     ports:
