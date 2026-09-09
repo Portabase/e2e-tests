@@ -10,7 +10,6 @@ function card(page: Page, title: string) {
 }
 
 test("Dashboard reports healthy agents, databases and retained backups", async ({page}) => {
-    test.setTimeout(120_000);
     await expect(async () => {
         await page.goto("/dashboard/home");
         await expect(card(page, "Agents").getByText("100%", {exact: true})).toBeVisible();
@@ -27,5 +26,5 @@ test("Dashboard reports healthy agents, databases and retained backups", async (
         expect(Number(backups![1])).toBe(Number(online![2]));
         expect(Number(backups![2])).toBe(Number(backups![1]) * 2);
         await expect(card(page, "Backup Success Rate").getByText("100.0%", {exact: true})).toBeVisible();
-    }).toPass({timeout: 90_000, intervals: [5_000]});
+    }).toPass();
 });
