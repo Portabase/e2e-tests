@@ -1,19 +1,21 @@
-import {test, expect, data, error, uniqueName} from "./fixtures";
-import {apiPath, missingId} from "./endpoints";
+import {test, expect, data, error} from "./fixtures";
+
+const missingId = "438e5292-1e7a-49d8-a3c0-3f4c24aceeb0";
+const apiPath = (path: string) => `/api/v1${path}`;
 
 test.describe.serial(() => {
     test("Database API assigns projects, updates schedules, backs up and restores a managed database", async ({api}) => {
         test.setTimeout(8 * 60_000);
-        const org = await data(await api.post(apiPath("/organizations"), {data: {name: uniqueName("database org")}}), 201);
+        const org = await data(await api.post(apiPath("/organizations"), {data: {name: "API Database Organization A"}}), 201);
         let project: any;
         let database: any;
         let attachedAgentId: string | undefined;
         let originalProjectId: string | null = null;
         let originalBackupPolicy: string | null = null;
         try {
-            project = await data(await api.post(apiPath(`/organizations/${org.id}/projects`), {data: {name: uniqueName("database project")}}), 201);
+            project = await data(await api.post(apiPath(`/organizations/${org.id}/projects`), {data: {name: "API Database Project A"}}), 201);
             const databases = await data<any[]>(await api.get(apiPath("/databases")));
-            database = databases.find(item => item.dbms === "postgresql" && item.lastContact && item.agentId);
+            database = databases.find(item => item.name === "PostgreSQL 18" && item.lastContact && item.agentId);
             expect(database, "project dependency exposes an online PostgreSQL database").toBeTruthy();
             attachedAgentId = database.agentId;
             originalProjectId = database.projectId ?? null;

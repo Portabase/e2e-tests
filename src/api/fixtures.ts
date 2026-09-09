@@ -1,9 +1,11 @@
-import {test as base, expect, APIRequestContext, APIResponse} from "@playwright/test";
+import {test as base, expect, APIRequestContext, APIResponse, Browser} from "@playwright/test";
 import {randomUUID} from "node:crypto";
+import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
+import {dirname} from "node:path";
 import {LOCAL_STORAGE_PATH} from "../helpers/session";
 
 export {expect};
-export const uniqueName = (kind: string) => `E2E API ${kind} ${randomUUID()}`;
+const API_KEY_PATH = "./test-results/api-key.json";
 
 export async function data<T = any>(response: APIResponse, status = 200): Promise<T> {
     expect(response.status(), `${response.url()}: ${await response.text()}`).toBe(status);
@@ -17,9 +19,9 @@ export async function error(response: APIResponse, status: number) {
     expect(await response.json()).toMatchObject({error: expect.any(String)});
 }
 
-export const test = base.extend<{api: APIRequestContext}, {apiKey: string}>({
-    apiKey: [async ({browser}, use) => {
-        const context = await browser.newContext({storageState: LOCAL_STORAGE_PATH, baseURL: process.env.SERVER_URL});
+export async function createApiKey(browser: Browser) {
+    const context = await browser.newContext({storageState: LOCAL_STORAGE_PATH, baseURL: process.env.SERVER_URL});
+    try {
         const page = await context.newPage();
         const name = `e2e-${randomUUID().slice(0, 12)}`;
         await page.goto("/dashboard/home");
@@ -34,16 +36,16 @@ export const test = base.extend<{api: APIRequestContext}, {apiKey: string}>({
         const key = await keyDialog.locator("input[readonly]").inputValue();
         expect(key.length).toBeGreaterThan(10);
         await page.getByRole("button", {name: "I copied my API Key", exact: true}).click();
-        try {
-            await use(key);
-        } finally {
-            const row = page.locator("div.flex.items-center.justify-between.p-4").filter({hasText: name});
-            await row.getByRole("button", {name: "Revoke", exact: true}).click();
-            await expect(row).toHaveCount(0);
-            await context.close();
-        }
-    }, {scope: "worker"}],
-    api: async ({playwright, apiKey}, use) => {
+        mkdirSync(dirname(API_KEY_PATH), {recursive: true});
+        writeFileSync(API_KEY_PATH, JSON.stringify({apiKey: key}));
+    } finally {
+        await context.close();
+    }
+}
+
+export const test = base.extend<{api: APIRequestContext}>({
+    api: async ({playwright}, use) => {
+        const {apiKey} = JSON.parse(readFileSync(API_KEY_PATH, "utf8"));
         const api = await playwright.request.newContext({
             baseURL: process.env.SERVER_URL,
             extraHTTPHeaders: {"x-api-key": apiKey},

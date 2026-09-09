@@ -1,9 +1,15 @@
-import {test, expect, data, error, uniqueName} from "./fixtures";
-import {apiPath, missingId} from "./endpoints";
+import {test, expect, data, error} from "./fixtures";
+
+const missingId = "438e5292-1e7a-49d8-a3c0-3f4c24aceeb0";
+const apiPath = (path: string) => `/api/v1${path}`;
 
 test.describe.serial(() => {
     test("Organization API creates, lists, reads, attaches and detaches an agent, and deletes", async ({api}) => {
-        const name = uniqueName("organization");
+        expect(await data<any[]>(await api.get(apiPath("/organizations")))).toEqual(expect.arrayContaining([
+            expect.objectContaining({name: "Organization A"}),
+            expect.objectContaining({name: "Organization B"}),
+        ]));
+        const name = "API Organization A";
         const org = await data(await api.post(apiPath("/organizations"), {data: {name}}), 201);
         let agent: {id: string} | undefined;
         try {
@@ -11,7 +17,7 @@ test.describe.serial(() => {
             expect(await data(await api.get(apiPath("/organizations")))).toEqual(expect.arrayContaining([expect.objectContaining({id: org.id})]));
             expect(await data(await api.get(apiPath(`/organizations/${org.id}`)))).toMatchObject({id: org.id, name});
             await error(await api.post(apiPath("/organizations"), {data: {name}}), 409);
-            agent = await data(await api.post(apiPath("/agents"), {data: {name: uniqueName("attached agent")}}), 201);
+            agent = await data(await api.post(apiPath("/agents"), {data: {name: "API Attached Agent A"}}), 201);
             const route = apiPath(`/organizations/${org.id}/agents`);
             expect(await data(await api.post(route, {data: {agentId: agent!.id}}), 201)).toMatchObject({organizationId: org.id, agentId: agent!.id});
             await error(await api.post(route, {data: {agentId: agent!.id}}), 422);

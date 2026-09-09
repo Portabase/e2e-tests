@@ -3,14 +3,14 @@
 Reference: https://portabase.io/docs/dashboard/api/introduction
 
 Enable `API_ENABLED=true` and `OPENAPI_ENABLED=true` (included in `docker/server/.env`).
-The API project runs after the project tests, so it reuses the agents and databases
-already created by the E2E environment.
+The API project runs after the notification, storage and project tests, and checks
+the organizations, agents, projects and databases created through the UI.
 The cleanup project waits for the API tests before revoking the shared UI session.
 
 Run the suite with `pnpm exec playwright test --project=api`. Against an already
 initialized E2E environment and saved authenticated session, add `--no-deps`.
-API keys are created through Account Settings, kept in memory, and revoked at the
-end of each worker. No external account or manual token configuration is required.
+One API key is created through Account Settings, stored in `test-results/api-key.json`
+and reused by every API test. No external account or manual token is required.
 
 `contract.spec.ts` compares all 25 operations with `/api/v1/openapi`, checks Swagger
 UI, and tests missing and invalid `x-api-key` headers on every operation.

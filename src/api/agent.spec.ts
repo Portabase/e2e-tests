@@ -1,9 +1,15 @@
-import {test, expect, data, error, uniqueName} from "./fixtures";
-import {apiPath, missingId} from "./endpoints";
+import {test, expect, data, error} from "./fixtures";
+
+const missingId = "438e5292-1e7a-49d8-a3c0-3f4c24aceeb0";
+const apiPath = (path: string) => `/api/v1${path}`;
 
 test.describe.serial(() => {
     test("Agent API creates, lists, reads, retrieves an edge key and deletes an agent", async ({api}) => {
-        const name = uniqueName("agent");
+        expect(await data<any[]>(await api.get(apiPath("/agents")))).toEqual(expect.arrayContaining([
+            expect.objectContaining({name: "Agent A Updated"}),
+            expect.objectContaining({name: "Agent B"}),
+        ]));
+        const name = "API Agent A";
         const agent = await data(await api.post(apiPath("/agents"), {data: {name}}), 201);
         expect(agent).toMatchObject({id: expect.any(String), name});
         try {

@@ -68,9 +68,14 @@ export default defineConfig({
       dependencies: ["agent"],
     },
     {
+      name: "api-setup",
+      testMatch: "/src/api/api-key.setup.ts",
+      dependencies: ["notification", "storage", "project"],
+    },
+    {
       name: "api",
       testMatch: "/src/api/*.spec.ts",
-      dependencies: ["project"],
+      dependencies: ["api-setup"],
     },
     {
       name: "cleanup",
