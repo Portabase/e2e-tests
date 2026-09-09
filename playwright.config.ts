@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
+import {existsSync} from "node:fs";
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
@@ -59,18 +60,25 @@ export default defineConfig({
     },
     {
       name: "agent",
-      testMatch: "**/agent.spec.ts",
+      testMatch: /[\\/]src[\\/]agent\.spec\.ts$/,
       dependencies: ["access-management"],
     },
     {
       name: "project",
-      testMatch: "**/project.spec.ts",
+      testMatch: /[\\/]src[\\/]project\.spec\.ts$/,
       dependencies: ["agent"],
+    },
+    {
+      name: "api",
+      testMatch: /[\\/]src[\\/]api[\\/].*\.spec\.ts$/,
+      dependencies: ["project", ...(existsSync(path.resolve(__dirname, "src/dashboard.spec.ts")) ? ["dashboard"] : [])],
+      fullyParallel: false,
+      retries: 0,
     },
     {
       name: "cleanup",
       testMatch: "**/cleanup.spec.ts",
-      dependencies: ["storage", "notification", "project"],
+      dependencies: ["storage", "notification", "project", "api"],
     },
   ],
 });
