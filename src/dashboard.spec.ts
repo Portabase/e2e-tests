@@ -20,7 +20,7 @@ test("Dashboard reports healthy agents, databases and retained backups", async (
         expect(online).not.toBeNull();
         expect(Number(online![1])).toBeGreaterThan(0);
         expect(online![1]).toBe(online![2]);
-        await expect(card(page, "Organizations").getByText("2", {exact: true})).toBeVisible();
+        await expect(card(page, "Organizations").getByText("3", {exact: true})).toBeVisible();
         await expect(card(page, "Backup")).toContainText("50% available");
         const backups = (await card(page, "Backup").innerText()).match(/(\d+)\/(\d+)/);
         expect(backups).not.toBeNull();

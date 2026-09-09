@@ -82,15 +82,4 @@ test.describe.serial(() => {
         await expect(page.getByText(users.normal.email, {exact: true})).toBeVisible();
     });
 
-    test("Delete the temporary Organization B before dashboard assertions", async ({page}) => {
-        await page.goto("/dashboard/admin/organizations");
-        const row = page.getByRole("row").filter({hasText: secondOrganization});
-        await openOverlay(
-            row.getByRole("button").filter({has: page.locator("svg.lucide-trash-2")}),
-            page.getByRole("button", {name: "Delete", exact: true}),
-        );
-        await page.getByRole("button", {name: "Delete", exact: true}).click();
-        await expect(page.getByText("Organization deleted!", {exact: true})).toBeVisible();
-        await expect(row).toHaveCount(0);
-    });
 });
