@@ -68,9 +68,14 @@ export default defineConfig({
       dependencies: ["agent"],
     },
     {
+      name: "dashboard",
+      testMatch: "**/dashboard.spec.ts",
+      dependencies: ["project"],
+    },
+    {
       name: "cleanup",
       testMatch: "**/cleanup.spec.ts",
-      dependencies: ["storage", "notification", "project"],
+      dependencies: ["storage", "notification", "project", "dashboard"],
     },
   ],
 });
