@@ -21,50 +21,50 @@ export default defineConfig({
     projects: [
         {
             name: "setup",
-            testMatch: "**/setup.spec.ts",
+            testMatch: "/src/setup.spec.ts",
         },
         ...(process.env.SKIP_ONBOARDING === "false"
             ? [
                 {
                     name: "onboarding",
-                    testMatch: "**/onboarding.spec.ts",
+                    testMatch: "/src/onboarding.spec.ts",
                     dependencies: ["setup"],
                 },
             ]
             : []),
         {
             name: "auth",
-            testMatch: "**/auth.spec.ts",
+            testMatch: "/src/auth.spec.ts",
             dependencies: ["setup"],
         },
         {
             name: "oidc",
-            testMatch: "**/oidc.spec.ts",
+            testMatch: "/src/oidc.spec.ts",
             dependencies: ["auth"],
         },
         {
             name: "access-management",
-            testMatch: "**/access-management.spec.ts",
+            testMatch: "/src/access-management.spec.ts",
             dependencies: ["oidc"],
         },
         {
             name: "notification",
-            testMatch: "**/notification/**/*.spec.ts",
+            testMatch: "/src/notification/**/*.spec.ts",
             dependencies: ["access-management"],
         },
         {
             name: "storage",
-            testMatch: "**/storage/**/*.spec.ts",
+            testMatch: "/src/storage/**/*.spec.ts",
             dependencies: ["access-management"],
         },
         {
             name: "agent",
-            testMatch: "**/agent.spec.ts",
+            testMatch: "/src/agent.spec.ts",
             dependencies: ["access-management"],
         },
         {
             name: "project",
-            testMatch: "**/project.spec.ts",
+            testMatch: "/src/project.spec.ts",
             dependencies: ["notification", "storage", "agent"],
         },
         {
@@ -73,9 +73,14 @@ export default defineConfig({
             dependencies: ["project"],
         },
         {
-            name: "cleanup",
-            testMatch: "**/cleanup.spec.ts",
+            name: "api",
+            testMatch: "/src/api/*.spec.ts",
             dependencies: ["dashboard"],
+        },
+        {
+            name: "cleanup",
+            testMatch: "/src/cleanup.spec.ts",
+            dependencies: ["api"],
         },
     ],
 });

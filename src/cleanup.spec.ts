@@ -1,7 +1,7 @@
 import {expect, test} from "@playwright/test";
 import * as fs from "fs";
 import {logout} from "./helpers/auth";
-import {LOCAL_STORAGE_PATH} from "./helpers/session";
+import {API_KEY_PATH, LOCAL_STORAGE_PATH} from "./helpers/session";
 
 
 test.use({storageState: LOCAL_STORAGE_PATH});
@@ -10,6 +10,9 @@ test.describe( () => {
     test.afterAll(async () => {
         if (fs.existsSync(LOCAL_STORAGE_PATH)) {
             fs.unlinkSync(LOCAL_STORAGE_PATH);
+        }
+        if (fs.existsSync(API_KEY_PATH)) {
+            fs.unlinkSync(API_KEY_PATH);
         }
     });
 

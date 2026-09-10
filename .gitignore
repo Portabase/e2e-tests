@@ -4,6 +4,8 @@ node_modules
 .idea
 playwright-report
 test-results
+/src/api-key.json
+/src/local-storage.json
 docs
 
 
