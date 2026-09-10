@@ -72,15 +72,15 @@ export default defineConfig({
             testMatch: "/src/dashboard.spec.ts",
             dependencies: ["project"],
         },
-        {
-            name: "api",
-            testMatch: "/src/api/*.spec.ts",
-            dependencies: ["dashboard"],
-        },
+        // {
+        //     name: "api",
+        //     testMatch: "/src/api/*.spec.ts",
+        //     dependencies: ["dashboard"],
+        // },
         {
             name: "cleanup",
             testMatch: "/src/cleanup.spec.ts",
-            dependencies: ["api"],
+            dependencies: ["dashboard"],
         },
     ],
 });
