@@ -28,6 +28,9 @@ test.describe.serial(() => {
             .filter(method => ["get", "post", "put", "patch", "delete"].includes(method))
             .map(method => `${method.toUpperCase()} ${path}`));
         expect(actual.sort()).toEqual(endpoints.map(([method, path]) => `${method} ${path}`).sort());
+    });
+
+    test("Swagger documentation is available", async ({request}) => {
         const docs = await request.get(apiPath("/docs"));
         expect(docs.status()).toBe(200);
         expect(await docs.text()).toContain("swagger");
