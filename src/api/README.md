@@ -9,7 +9,7 @@ The cleanup project waits for the API tests before revoking the shared UI sessio
 
 Run the suite with `pnpm exec playwright test --project=api`. Against an already
 initialized E2E environment and saved authenticated session, add `--no-deps`.
-One API key is created through Account Settings, stored in `src/api-key.json`
+One API key is created after login through Account Settings, stored in `src/api-key.json`
 and reused by every API test. No external account or manual token is required.
 
 `contract.spec.ts` compares all 25 operations with `/api/v1/openapi`, checks Swagger

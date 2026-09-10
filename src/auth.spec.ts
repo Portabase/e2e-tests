@@ -1,6 +1,7 @@
 import {test, expect} from '@playwright/test';
 import {login, register, users} from "./helpers/auth";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
+import {createApiKey} from "./api/fixtures";
 
 const TIMEOUT = undefined
 // const TIMEOUT = 5000
@@ -93,12 +94,13 @@ test.describe.serial( () => {
         await expect(toast).toBeVisible()
     })
 
-    test('Successful login', async ({page}) => {
+    test('Successful login', async ({page, browser}) => {
         await page.goto('/login')
         await login(page, users["admin"].email, users["admin"].password)
 
         await expect(page).toHaveURL('/dashboard/home', {timeout: TIMEOUT})
         await expect(page.getByRole('link', {name: 'Logo Portabase'})).toBeVisible()
         await page.context().storageState({path: LOCAL_STORAGE_PATH})
+        await createApiKey(browser)
     })
 })

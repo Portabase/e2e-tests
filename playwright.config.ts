@@ -68,14 +68,9 @@ export default defineConfig({
       dependencies: ["agent"],
     },
     {
-      name: "api-setup",
-      testMatch: "/src/api/api-key.setup.ts",
-      dependencies: ["notification", "storage", "project"],
-    },
-    {
       name: "api",
       testMatch: "/src/api/*.spec.ts",
-      dependencies: ["api-setup"],
+      dependencies: ["notification", "storage", "project"],
       fullyParallel: false,
       workers: 1,
     },
