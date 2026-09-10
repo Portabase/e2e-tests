@@ -37,6 +37,8 @@ e2e-before:
     @just e2e-clean
     @docker network inspect portabase >/dev/null 2>&1 || docker network create portabase
     @docker compose -f docker/database/docker-compose.yml up -d
+    @docker compose -f docker/notification/docker-compose.yml up -d
+    @docker compose -f docker/notification/docker-compose.yml run --rm apprise-init
     @just seed-auth
 
 e2e-after:
@@ -48,6 +50,7 @@ e2e-clean:
     @docker compose -f docker/server/docker-compose.yml down --volumes
     @docker compose -f docker/oidc/docker-compose.yml down --volumes
     @docker compose -f docker/database/docker-compose.yml down --volumes
+    @docker compose -f docker/notification/docker-compose.yml down --volumes
     @echo "Docker artifacts cleaned up successfully"
 
 e2e-auto:

@@ -46,7 +46,7 @@ export async function remove(page: Page, channelName: string) {
  */
 export async function create(
     page: Page,
-    provider: "Discord" | "Gotify" | "ntfy.sh" | "Slack" | "Email" | "Telegram" | "Webhook" | "Microsoft Teams" | "Pushover",
+    provider: "Apprise" | "Discord" | "Gotify" | "ntfy.sh" | "Slack" | "Email" | "Telegram" | "Webhook" | "Microsoft Teams" | "Pushover",
     channelName: string,
     fillConfig: (page: Page) => Promise<void>,
     entrypoint: "auto" | "emptyState" | "button" = "auto",
