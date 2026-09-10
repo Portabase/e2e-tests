@@ -10,16 +10,30 @@ function card(page: Page, title: string) {
 }
 
 test.describe.serial(() => {
-    test("Dashboard reports healthy agents, databases and retained backups", async ({page}) => {
+    test("Organizations", async ({page}) => {
+        await page.goto("/dashboard/home");
+        await expect(card(page, "Organizations").getByText("3", {exact: true})).toBeVisible();
+    });
+
+    test("Agents", async ({page}) => {
         await page.goto("/dashboard/home");
         await expect(card(page, "Agents").getByText("100%", {exact: true})).toBeVisible();
         await expect(card(page, "Agents").getByText("2/2 online", {exact: true})).toBeVisible();
+    });
+
+    test("Databases", async ({page}) => {
+        await page.goto("/dashboard/home");
         await expect(card(page, "Databases").getByText("100%", {exact: true})).toBeVisible();
         const online = (await card(page, "Databases").innerText()).match(/(\d+)\/(\d+) online/);
         expect(online).not.toBeNull();
         expect(Number(online![1])).toBeGreaterThan(0);
         expect(online![1]).toBe(online![2]);
-        await expect(card(page, "Organizations").getByText("3", {exact: true})).toBeVisible();
+    });
+
+    test("Backup", async ({page}) => {
+        await page.goto("/dashboard/home");
+        const online = (await card(page, "Databases").innerText()).match(/(\d+)\/(\d+) online/);
+        expect(online).not.toBeNull();
         await expect(card(page, "Backup")).toContainText("50% available");
         const backups = (await card(page, "Backup").innerText()).match(/(\d+)\/(\d+)/);
         expect(backups).not.toBeNull();
