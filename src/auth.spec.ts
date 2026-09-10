@@ -1,5 +1,5 @@
 import {test, expect} from '@playwright/test';
-import {login, register, users} from "./helpers/auth";
+import {login, logout, register, users} from "./helpers/auth";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 import {createApiKey} from "./api/fixtures";
 
@@ -94,13 +94,38 @@ test.describe.serial( () => {
         await expect(toast).toBeVisible()
     })
 
-    test('Successful login', async ({page, browser}) => {
+    test('Successful login', async ({page}) => {
         await page.goto('/login')
         await login(page, users["admin"].email, users["admin"].password)
 
         await expect(page).toHaveURL('/dashboard/home', {timeout: TIMEOUT})
         await expect(page.getByRole('link', {name: 'Logo Portabase'})).toBeVisible()
         await page.context().storageState({path: LOCAL_STORAGE_PATH})
+    })
+
+    test('Change password and reconnect', async ({page}) => {
+        const newPassword = 'testPASS654321!'
+        await page.goto('/dashboard/home')
+        await page.getByTestId('profile-dropdown').first().click()
+        await page.getByRole('menuitem', {name: 'Account Settings', exact: true}).click()
+        await page.getByRole('tab', {name: 'Security & Access', exact: true}).click()
+        const dialog = page.getByRole('dialog', {name: 'Reset Password', exact: true})
+        await page.getByRole('button', {name: 'Reset Password', exact: true}).click()
+        await page.locator('input[name="currentPassword"]').fill(users["admin"].password)
+        await page.locator('input[name="newPassword"]').fill(newPassword)
+        await page.locator('input[name="confirmPassword"]').fill(newPassword)
+        await page.getByRole('button', {name: 'Submit', exact: true}).click()
+        await expect(dialog).toBeHidden()
+
+        await page.getByRole('button', {name: 'Close', exact: true}).click()
+        await logout(page)
+        await expect(page).toHaveURL(/\/login/)
+        await login(page, users["admin"].email, newPassword)
+        await expect(page).toHaveURL('/dashboard/home', {timeout: TIMEOUT})
+        await page.context().storageState({path: LOCAL_STORAGE_PATH})
+    })
+
+    test('Create API key', async ({browser}) => {
         await createApiKey(browser)
     })
 })
