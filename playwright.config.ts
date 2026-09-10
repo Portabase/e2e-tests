@@ -69,7 +69,7 @@ export default defineConfig({
         },
         {
             name: "dashboard",
-            testMatch: "**/dashboard.spec.ts",
+            testMatch: "/src/dashboard.spec.ts",
             dependencies: ["project"],
         },
         {

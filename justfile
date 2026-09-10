@@ -49,6 +49,8 @@ e2e-clean:
     @echo "Cleaning Docker artifacts (containers, images, and volumes)..."
     @docker compose -f docker/server/docker-compose.yml down --volumes
     @docker compose -f docker/oidc/docker-compose.yml down --volumes
+    @docker compose -f docker/agent/docker-compose.agent-a.yml down
+    @docker compose -f docker/agent/docker-compose.agent-b.yml down
     @docker compose -f docker/database/docker-compose.yml down --volumes
     @docker compose -f docker/notification/docker-compose.yml down --volumes
     @echo "Docker artifacts cleaned up successfully"
@@ -81,5 +83,5 @@ e2e-onboarding-manual:
     @just e2e-after
 
 e2e-onboarding-auto:
-    @echo "Launching dashboard tests in non-interactive mode..."
+    @echo "Launching onboarding tests in non-interactive mode..."
     @SKIP_ONBOARDING=false CI=true pnpm playwright test --project=onboarding || (just e2e-clean; exit 1)
