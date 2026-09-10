@@ -131,7 +131,7 @@ services:
     expose:
       - "5432"
     volumes:
-      - postgresql-18-backup-e2e-data:/var/lib/postgresql/data
+      - postgresql-18-backup-e2e-data:/var/lib/postgresql
 
   postgresql-17:
     <<: *postgresql-common
