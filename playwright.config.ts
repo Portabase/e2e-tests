@@ -76,6 +76,8 @@ export default defineConfig({
       name: "api",
       testMatch: "/src/api/*.spec.ts",
       dependencies: ["api-setup"],
+      fullyParallel: false,
+      workers: 1,
     },
     {
       name: "cleanup",

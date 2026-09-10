@@ -1,11 +1,9 @@
 import {test as base, expect, APIRequestContext, APIResponse, Browser} from "@playwright/test";
 import {randomUUID} from "node:crypto";
-import {mkdirSync, readFileSync, writeFileSync} from "node:fs";
-import {dirname} from "node:path";
-import {LOCAL_STORAGE_PATH} from "../helpers/session";
+import {readFileSync, writeFileSync} from "node:fs";
+import {API_KEY_PATH, LOCAL_STORAGE_PATH} from "../helpers/session";
 
 export {expect};
-const API_KEY_PATH = "./test-results/api-key.json";
 
 export async function data<T = any>(response: APIResponse, status = 200): Promise<T> {
     expect(response.status(), `${response.url()}: ${await response.text()}`).toBe(status);
@@ -36,7 +34,6 @@ export async function createApiKey(browser: Browser) {
         const key = await keyDialog.locator("input[readonly]").inputValue();
         expect(key.length).toBeGreaterThan(10);
         await page.getByRole("button", {name: "I copied my API Key", exact: true}).click();
-        mkdirSync(dirname(API_KEY_PATH), {recursive: true});
         writeFileSync(API_KEY_PATH, JSON.stringify({apiKey: key}));
     } finally {
         await context.close();
