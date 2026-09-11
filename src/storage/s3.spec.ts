@@ -39,8 +39,8 @@ const providers = [
     },
 ] as const;
 
-for (const provider of providers) {
-    test.describe(provider.title, () => {
+test.describe.serial(() => {
+    for (const provider of providers) {
         // test.describe.serial("Valid channels", () => {
         //     test(`Create and test a valid ${provider.title} channel`, async ({page}) => {
         //         await page.goto("/dashboard/storages/channels");
@@ -89,41 +89,36 @@ for (const provider of providers) {
         //     });
         // });
 
-        test.describe.serial("Invalid channel", () => {
-            test(`Create and test invalid ${provider.title} channel`, async ({page}) => {
-                await page.goto("/dashboard/storages/channels");
-                await expect(page.getByRole("heading", {name: "Storage channels"})).toBeVisible();
-                await create(page, "S3", provider.invalidChannelName, async (page) => {
-                    await page.getByLabel(/Endpoint URL/).fill(provider.endpointUrl);
-                    await page.getByLabel(/^Region$/).fill(provider.region);
-                    await page.getByLabel(/Access Key/).fill(provider.invalidAccessKey);
-                    await page.getByLabel(/Secret Key/).fill(provider.invalidSecretKey);
-                    await page.getByLabel(/Bucket name/).fill(provider.bucketName);
-                    await page.getByLabel(/^Port$/).fill(provider.port);
-                });
-                await expect(page.getByRole("heading", {name: "Add Storage Channel"})).toBeVisible();
-                await testConnection(page);
-                await expect(page.getByText("An error occurred while testing the storage channel")).toBeVisible();
-                await submit(page);
-                await expect(page.getByText("Storage channel has been successfully created.")).toBeVisible();
-                await expect(get(page, provider.invalidChannelName)).toBeVisible();
+        test(`Create and test invalid ${provider.title} channel`, async ({page}) => {
+            await page.goto("/dashboard/storages/channels");
+            await expect(page.getByRole("heading", {name: "Storage channels"})).toBeVisible();
+            await create(page, "S3", provider.invalidChannelName, async (page) => {
+                await page.getByLabel(/Endpoint URL/).fill(provider.endpointUrl);
+                await page.getByLabel(/^Region$/).fill(provider.region);
+                await page.getByLabel(/Access Key/).fill(provider.invalidAccessKey);
+                await page.getByLabel(/Secret Key/).fill(provider.invalidSecretKey);
+                await page.getByLabel(/Bucket name/).fill(provider.bucketName);
+                await page.getByLabel(/^Port$/).fill(provider.port);
             });
-
-            test(`Delete invalid ${provider.title} channel`, async ({page}) => {
-                await page.goto("/dashboard/storages/channels");
-                await expect(page.getByRole("heading", {name: "Storage channels"})).toBeVisible();
-                await expect(get(page, provider.invalidChannelName)).toBeVisible();
-                await remove(page, provider.invalidChannelName);
-                await expect(page.getByText("Storage channel has been successfully removed.")).toBeVisible();
-                await expect(page.getByText(provider.invalidChannelName)).toHaveCount(0);
-            });
+            await expect(page.getByRole("heading", {name: "Add Storage Channel"})).toBeVisible();
+            await testConnection(page);
+            await expect(page.getByText("An error occurred while testing the storage channel")).toBeVisible();
+            await submit(page);
+            await expect(page.getByText("Storage channel has been successfully created.")).toBeVisible();
+            await expect(get(page, provider.invalidChannelName)).toBeVisible();
         });
-    });
-}
 
-test.describe.serial(() => {
-    for (const provider of [localStorage.garage,]) {
-        // for (const provider of [localStorage.garage, localStorage.rustfs]) {
+        test(`Delete invalid ${provider.title} channel`, async ({page}) => {
+            await page.goto("/dashboard/storages/channels");
+            await expect(page.getByRole("heading", {name: "Storage channels"})).toBeVisible();
+            await expect(get(page, provider.invalidChannelName)).toBeVisible();
+            await remove(page, provider.invalidChannelName);
+            await expect(page.getByText("Storage channel has been successfully removed.")).toBeVisible();
+            await expect(page.getByText(provider.invalidChannelName)).toHaveCount(0);
+        });
+    }
+
+    for (const provider of [localStorage.garage, localStorage.rustfs]) {
         test(`Connect ${provider.name} storage`, async ({page}) => {
             await connectLocalStorage(page, "S3", provider.name, async () => {
                 await page.getByLabel(/Endpoint URL/).fill(provider.endpoint);

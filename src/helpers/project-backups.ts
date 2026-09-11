@@ -2,6 +2,7 @@ import {expect, Page} from "@playwright/test";
 import {readFileSync} from "node:fs";
 import path from "node:path";
 import {get} from "./project";
+import {openOverlay} from "./ui";
 
 const agentA: {databases: {name: string; type: string}[]} = JSON.parse(readFileSync(path.resolve(__dirname, "../../docker/agent/databases.json"), "utf8"));
 const agentB = readFileSync(path.resolve(__dirname, "../../docker/agent/databases.toml"), "utf8")
@@ -13,8 +14,7 @@ const databases = [...agentA.databases, ...agentB];
 
 export const projectGroups = [
     {name: "PostgreSQL", types: ["postgresql"], storage: "garage"},
-    {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "garage"},
-    // {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "rustFS"},
+    {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "rustFS"},
     {name: "MongoDB", types: ["mongodb"], storage: "azurite"},
     {name: "Redis/Valkey", types: ["redis", "valkey"], storage: "fake gcs server"},
     {name: "MSSQL/SQLite", types: ["mssql", "sqlite"], storage: "System"},
@@ -46,10 +46,11 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
     return {projectUrl, databaseUrls};
 }
 
-export async function configureBackupPolicies(page: Page, url: string, storage: string) {
-    await page.goto(url);
-    await page.getByRole("button").filter({has: page.locator("svg.lucide-clock-9")}).click();
+export async function configureBackupPolicies(page: Page, storage: string) {
     const method = page.getByRole("dialog", {name: "Backup method", exact: true});
+    const methodButton = page.getByRole("button").filter({has: page.locator("svg.lucide-clock-9")});
+    await expect(methodButton).toBeVisible();
+    await openOverlay(methodButton, method);
     await method.getByRole("switch").check();
     const scheduled = new Date(Date.now() + 7 * 24 * 60 * 60_000);
     for (const [label, value] of [["Day of Month", String(scheduled.getUTCDate())], ["Month", String(scheduled.getUTCMonth() + 1)]]) {
@@ -60,32 +61,35 @@ export async function configureBackupPolicies(page: Page, url: string, storage: 
     await expect(page.getByText("Cron updated successfully.")).toBeVisible();
     await expect(method).toBeHidden();
 
-    await page.getByRole("button").filter({has: page.locator("svg.lucide-ruler")}).click();
     const retention = page.getByRole("dialog", {name: "Backup Retention Policy", exact: true});
+    const retentionButton = page.getByRole("button").filter({has: page.locator("svg.lucide-ruler")});
+    await expect(retentionButton).toBeVisible();
+    await openOverlay(retentionButton, retention);
     await retention.getByRole("radio", {name: /Keep last N backups/}).check();
     await retention.getByLabel("Number of backups to keep").fill("1");
     await retention.getByRole("button", {name: "Save Retention Policy"}).click();
     await expect(page.getByText("Retention policy updated successfully.")).toBeVisible();
     await retention.getByRole("button", {name: "Close", exact: true}).click();
 
-    await page.getByRole("button").filter({has: page.locator("svg.lucide-hard-drive")}).click();
     const policy = page.getByRole("dialog", {name: "Storage policies", exact: true});
+    const policyButton = page.getByRole("button").filter({has: page.locator("svg.lucide-hard-drive")});
+    await expect(policyButton).toBeVisible();
+    await openOverlay(policyButton, policy);
     await policy.getByRole("button", {name: "Add Policy", exact: true}).click();
     await policy.getByRole("combobox").click();
     await page.getByRole("option").filter({has: page.getByText(storage, {exact: true})}).click();
     await policy.getByRole("button", {name: "Save Changes", exact: true}).click();
     await expect(policy).toBeHidden();
-    await page.reload();
-    await page.getByRole("button").filter({has: page.locator("svg.lucide-hard-drive")}).click();
+    await openOverlay(policyButton, policy);
     await expect(policy.getByRole("combobox")).toContainText(storage);
     await policy.getByRole("button", {name: "Cancel", exact: true}).click();
-    await page.getByRole("button").filter({has: page.locator("svg.lucide-ruler")}).click();
+    await openOverlay(retentionButton, retention);
     await expect(retention.getByLabel("Number of backups to keep")).toHaveValue("1");
     await retention.getByRole("button", {name: "Close", exact: true}).click();
 }
 
 export async function queueProjectBackup(page: Page, projectUrl: string, count: number) {
-    await page.goto(projectUrl);
+    if (page.url() !== projectUrl) await page.goto(projectUrl);
     await page.getByRole("button", {name: "Select all", exact: true}).click();
     await page.getByRole("button", {name: "Backup", exact: true}).click();
     await expect(page.getByText(`Queued ${count} backup(s).`, {exact: true})).toBeVisible();
@@ -98,7 +102,7 @@ export function backupRows(page: Page) {
 const uuid = /[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}/i;
 
 export async function waitForSuccessfulBackup(page: Page, url: string, previous?: string) {
-    await page.goto(url);
+    if (page.url() !== url) await page.goto(url);
     let reference = "";
     await expect(async () => {
         const rows = backupRows(page);
@@ -112,13 +116,10 @@ export async function waitForSuccessfulBackup(page: Page, url: string, previous?
 }
 
 export async function verifyRetention(page: Page, url: string, latest: string, deleted: string) {
-    await page.goto(url);
-    await expect(async () => {
-        await page.reload();
-        await expect(backupRows(page)).toHaveCount(1);
-        await expect(backupRows(page)).toContainText(latest);
-        await expect(backupRows(page).getByText("success", {exact: true})).toBeVisible();
-    }).toPass({timeout: 90_000, intervals: [5_000]});
+    if (page.url() !== url) await page.goto(url);
+    await expect(backupRows(page)).toHaveCount(1);
+    await expect(backupRows(page)).toContainText(latest);
+    await expect(backupRows(page).getByText("success", {exact: true})).toBeVisible();
     await page.getByRole("button").filter({has: page.locator("svg.lucide-funnel, svg.lucide-filter")}).click();
     await page.getByRole("menuitem", {name: "Clear filters", exact: true}).click();
     await page.getByRole("menuitem", {name: "Deleted", exact: true}).click();
@@ -127,4 +128,20 @@ export async function verifyRetention(page: Page, url: string, latest: string, d
     await expect(backupRows(page)).toContainText(deleted);
     await expect(backupRows(page).getByText("success", {exact: true})).toBeVisible();
     await expect(page.getByText(latest, {exact: true})).toHaveCount(0);
+}
+
+export async function queueProjectRestore(page: Page, projectUrl: string, count: number) {
+    if (page.url() !== projectUrl) await page.goto(projectUrl);
+    await page.getByRole("button", {name: "Select all", exact: true}).click();
+    await page.getByRole("button", {name: "Restore latest", exact: true}).click();
+    const restore = page.getByRole("dialog", {name: `Restore ${count} database(s) to latest backup`, exact: true});
+    await restore.getByPlaceholder("restore", {exact: true}).fill("restore");
+    await restore.getByRole("button", {name: `Restore ${count} database(s)`, exact: true}).click();
+    await expect(restore).toBeHidden();
+}
+
+export async function waitForSuccessfulRestore(page: Page, url: string) {
+    if (page.url() !== url) await page.goto(url);
+    await page.getByRole("tab", {name: "Restoration", exact: true}).click();
+    await expect(page.getByRole("cell", {name: "success", exact: true})).toBeVisible({timeout: 180_000});
 }

@@ -4,6 +4,8 @@ services:
 
   app:
     image: ${SERVER_IMAGE:-portabase/portabase:latest}
+    mem_limit: 1536m
+    cpus: 1.5
     ports:
       - '8887:80'
     environment:
@@ -27,6 +29,8 @@ services:
 
   db:
     image: postgres:17-alpine
+    mem_limit: 512m
+    cpus: 0.3
     ports:
       - "5433:5432"
     volumes:

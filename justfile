@@ -40,8 +40,7 @@ e2e-before:
     @docker compose -f docker/notification/docker-compose.yml up -d
     @docker compose -f docker/notification/docker-compose.yml run --rm apprise-init
     @docker compose -f docker/storage/docker-compose.yml up -d
-    @sh docker/storage/init-garage.sh
-    @docker compose -f docker/storage/docker-compose.yml run --rm storage-init
+    @python3 docker/storage/init.py
     @just seed-auth
 
 e2e-after:

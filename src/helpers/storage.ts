@@ -32,6 +32,7 @@ export async function create(
 ) {
     const addButton = page.getByRole("button", {name: /Add storage channel/i});
     const emptyStateButton = page.getByText("No storage channels configured yet", {exact: true});
+    await expect(addButton.or(emptyStateButton).first()).toBeVisible();
 
     let trigger: Locator;
     if (entrypoint === "button") {
