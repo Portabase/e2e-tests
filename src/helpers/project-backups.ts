@@ -13,7 +13,8 @@ const databases = [...agentA.databases, ...agentB];
 
 export const projectGroups = [
     {name: "PostgreSQL", types: ["postgresql"], storage: "garage"},
-    {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "rustFS"},
+    {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "garage"},
+    // {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "rustFS"},
     {name: "MongoDB", types: ["mongodb"], storage: "azurite"},
     {name: "Redis/Valkey", types: ["redis", "valkey"], storage: "fake gcs server"},
     {name: "MSSQL/SQLite", types: ["mssql", "sqlite"], storage: "System"},

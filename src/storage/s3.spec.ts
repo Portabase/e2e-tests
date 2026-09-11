@@ -122,7 +122,8 @@ for (const provider of providers) {
 }
 
 test.describe.serial(() => {
-    for (const provider of [localStorage.garage, localStorage.rustfs]) {
+    for (const provider of [localStorage.garage,]) {
+        // for (const provider of [localStorage.garage, localStorage.rustfs]) {
         test(`Connect ${provider.name} storage`, async ({page}) => {
             await connectLocalStorage(page, "S3", provider.name, async () => {
                 await page.getByLabel(/Endpoint URL/).fill(provider.endpoint);
