@@ -2,6 +2,7 @@ import {test, expect} from '@playwright/test';
 import {login, logout, register, users} from "./helpers/auth";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 import {createApiKey} from "./api/fixtures";
+import {navigateVia, openOverlay} from "./helpers/ui";
 
 const TIMEOUT = undefined
 // const TIMEOUT = 5000
@@ -17,8 +18,7 @@ test.describe.serial( () => {
 
     test('Password too short', async ({page}) => {
         await page.goto('')
-        await page.click('text=Sign up')
-        await expect(page).toHaveURL('/register')
+        await navigateVia(page, page.getByText('Sign up', {exact: true}), /\/register/)
 
         let password = '123456'
         await register(page, users["admin"].username, users["admin"].email, password, password)
@@ -29,8 +29,7 @@ test.describe.serial( () => {
 
     test('Password too simple', async ({page}) => {
         await page.goto('')
-        await page.click('text=Sign up')
-        await expect(page).toHaveURL('/register')
+        await navigateVia(page, page.getByText('Sign up', {exact: true}), /\/register/)
 
         let password = '12345678'
         await register(page, users["admin"].username, users["admin"].email, password, password)
@@ -41,8 +40,7 @@ test.describe.serial( () => {
 
     test('Password and confirm password mismatch', async ({page}) => {
         await page.goto('/')
-        await page.click('text=Sign up')
-        await expect(page).toHaveURL('/register')
+        await navigateVia(page, page.getByText('Sign up', {exact: true}), /\/register/)
 
         let password = 'testPASS123456!'
         let confirmPassword = 'testPASS123456!!'
@@ -55,8 +53,7 @@ test.describe.serial( () => {
     test('Successful register for admin', async ({page}) => {
         await page.goto('/')
 
-        await page.click('text=Sign up')
-        await expect(page).toHaveURL('/register')
+        await navigateVia(page, page.getByText('Sign up', {exact: true}), /\/register/)
 
         await register(page, users["admin"].username, users["admin"].email, users["admin"].password, users["admin"].password)
 
@@ -66,8 +63,7 @@ test.describe.serial( () => {
     test('User already exists.', async ({page}) => {
         await page.goto('/')
 
-        await page.click('text=Sign up')
-        await expect(page).toHaveURL('/register')
+        await navigateVia(page, page.getByText('Sign up', {exact: true}), /\/register/)
 
         await register(page, users["admin"].username, users["admin"].email, users["admin"].password, users["admin"].password)
 
@@ -78,8 +74,7 @@ test.describe.serial( () => {
     test('Successful register for normal', async ({page}) => {
         await page.goto('/')
 
-        await page.click('text=Sign up')
-        await expect(page).toHaveURL('/register')
+        await navigateVia(page, page.getByText('Sign up', {exact: true}), /\/register/)
 
         await register(page, users["normal"].username, users["normal"].email, users["normal"].password, users["normal"].password)
 
@@ -106,11 +101,13 @@ test.describe.serial( () => {
     test('Change password and reconnect', async ({page}) => {
         const newPassword = 'testPASS654321!'
         await page.goto('/dashboard/home')
-        await page.getByTestId('profile-dropdown').first().click()
-        await page.getByRole('menuitem', {name: 'Account Settings', exact: true}).click()
-        await page.getByRole('tab', {name: 'Security & Access', exact: true}).click()
+        const accountSettings = page.getByRole('menuitem', {name: 'Account Settings', exact: true})
+        await openOverlay(page.getByTestId('profile-dropdown').first(), accountSettings)
+        const securityTab = page.getByRole('tab', {name: 'Security & Access', exact: true})
+        await openOverlay(accountSettings, securityTab)
+        await securityTab.click()
         const dialog = page.getByRole('dialog', {name: 'Reset Password', exact: true})
-        await page.getByRole('button', {name: 'Reset Password', exact: true}).click()
+        await openOverlay(page.getByRole('button', {name: 'Reset Password', exact: true}), dialog)
         await page.locator('input[name="currentPassword"]').fill(users["admin"].password)
         await page.locator('input[name="newPassword"]').fill(newPassword)
         await page.locator('input[name="confirmPassword"]').fill(newPassword)

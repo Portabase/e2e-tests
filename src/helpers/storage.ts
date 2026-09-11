@@ -32,16 +32,11 @@ export async function create(
 ) {
     const addButton = page.getByRole("button", {name: /Add storage channel/i});
     const emptyStateButton = page.getByText("No storage channels configured yet", {exact: true});
-    await expect(addButton.or(emptyStateButton).first()).toBeVisible();
-
-    let trigger: Locator;
-    if (entrypoint === "button") {
-        trigger = addButton;
-    } else if (entrypoint === "emptyState") {
-        trigger = emptyStateButton;
-    } else {
-        trigger = (await addButton.isVisible()) ? addButton : emptyStateButton;
-    }
+    const trigger: Locator = entrypoint === "button"
+        ? addButton
+        : entrypoint === "emptyState"
+            ? emptyStateButton
+            : addButton.or(emptyStateButton).filter({visible: true}).first();
 
     const dialog = page.getByRole("dialog", {name: "Add Storage Channel"});
     await openOverlay(trigger, dialog);
@@ -58,7 +53,7 @@ export async function create(
  */
 export async function edit(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await card.locator("button").nth(1).click();
+    await openOverlay(card.locator("button").nth(1), page.getByRole("dialog").filter({visible: true}).getByLabel(/Channel Name/));
 }
 
 /**
@@ -68,8 +63,9 @@ export async function edit(page: Page, channelName: string) {
  */
 export async function remove(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await card.locator("button").nth(2).click();
-    await page.getByRole("button", {name: "Delete"}).click();
+    const confirm = page.getByRole("button", {name: "Delete", exact: true});
+    await openOverlay(card.locator("button").nth(2), confirm);
+    await confirm.click();
 }
 
 /**

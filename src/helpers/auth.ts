@@ -1,4 +1,5 @@
 import {Page} from "@playwright/test";
+import {openOverlay} from "./ui";
 
 export type UserCredentials = {
     username: string
@@ -44,7 +45,7 @@ export async function login(page: Page, email: string, password: string) {
  */
 export async function logout(page: Page) {
     const profileButton = page.getByTestId('profile-dropdown')
-    await profileButton.first().click();
-
-    await page.getByRole("menuitem").filter({hasText: /Logout/i}).click();
+    const logoutItem = page.getByRole("menuitem").filter({hasText: /Logout/i});
+    await openOverlay(profileButton.first(), logoutItem);
+    await logoutItem.click();
 }

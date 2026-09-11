@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { openOverlay } from "./ui";
 
 export async function createAccount(
   page: Page,
@@ -24,8 +25,7 @@ export async function addWebhookNotifier(
   channelName: string,
   webhookUrl: string,
 ) {
-  await page.getByRole("button", { name: "Webhook" }).click();
-  await expect(page.getByText("Configuring Webhook")).toBeVisible();
+  await openOverlay(page.getByRole("button", { name: "Webhook" }), page.getByText("Configuring Webhook"));
   await page.getByLabel(/Channel name/).fill(channelName);
   await page.getByLabel(/Webhook URL/).fill(webhookUrl);
   await page.getByRole("button", { name: "Add channel" }).click();
@@ -44,8 +44,7 @@ export async function addS3Storage(
     bucket: string;
   },
 ) {
-  await page.getByRole("button", { name: "S3" }).click();
-  await expect(page.getByText("Configuring S3")).toBeVisible();
+  await openOverlay(page.getByRole("button", { name: "S3" }), page.getByText("Configuring S3"));
   await page.getByLabel(/Channel name/).fill(channelName);
   await page.getByLabel(/Endpoint URL/).fill(opts.endpoint);
   await page.getByLabel(/Access Key/).fill(opts.accessKey);

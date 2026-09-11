@@ -1,6 +1,6 @@
 import {Page} from "@playwright/test";
 import {execSync} from "node:child_process";
-import {navigateVia} from "./ui";
+import {navigateVia, openOverlay} from "./ui";
 
 const AGENT_DETAIL_URL = /\/dashboard\/agents\/.+/;
 
@@ -25,17 +25,16 @@ export function get(page: Page, name: string) {
  * Executes from: `/dashboard/agents`.
  */
 export async function create(page: Page, entrypoint: "auto" | "emptyState" | "button" = "auto", agentName: string, description: string) {
-    if (entrypoint === "auto") {
-        const createButton = page.getByRole("button", {name: /Create Agent/i});
-        if (await createButton.isVisible()) await page.getByRole("button", {name: /Create Agent/i}).click();
-        await page.getByText("Create new Agent", {exact: true}).click();
-    } else if (entrypoint === "button") {
-        await page.getByRole("button", {name: /Create Agent/i}).click();
-    } else if (entrypoint === "emptyState") {
-        await page.getByText("Create new Agent", {exact: true}).click();
-    }
-
-    await page.getByLabel("Name").fill(agentName);
+    const createButton = page.getByRole("button", {name: /Create Agent/i});
+    const emptyStateButton = page.getByText("Create new Agent", {exact: true});
+    const trigger = entrypoint === "button"
+        ? createButton
+        : entrypoint === "emptyState"
+            ? emptyStateButton
+            : createButton.or(emptyStateButton).filter({visible: true}).first();
+    const nameField = page.getByRole("dialog").filter({visible: true}).getByLabel("Name");
+    await openOverlay(trigger, nameField);
+    await nameField.fill(agentName);
     await page.getByLabel("Description").fill(description);
     await page.getByRole("button", {name: "Create"}).click();
 }
@@ -48,12 +47,13 @@ export async function create(page: Page, entrypoint: "auto" | "emptyState" | "bu
 export async function edit(page: Page, currentName: string, updatedName: string, updatedDescription: string) {
     await navigateVia(page, get(page, currentName), AGENT_DETAIL_URL);
 
-    await page
+    const editButton = page
         .getByRole("button", {name: /Delete Agent/i})
-        .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]")
-        .click();
+        .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]");
+    const nameField = page.getByRole("dialog").filter({visible: true}).getByLabel("Name");
+    await openOverlay(editButton, nameField);
 
-    await page.getByLabel("Name").fill(updatedName);
+    await nameField.fill(updatedName);
     await page.getByLabel("Description").fill(updatedDescription);
     await page.getByRole("button", {name: "Update"}).click();
 }
@@ -65,8 +65,9 @@ export async function edit(page: Page, currentName: string, updatedName: string,
  */
 export async function remove(page: Page, name: string) {
     await navigateVia(page, get(page, name), AGENT_DETAIL_URL);
-    await page.getByRole("button", {name: /Delete Agent/i}).click();
-    await page.getByRole("button", {name: "Delete", exact: true}).click();
+    const confirm = page.getByRole("button", {name: "Delete", exact: true});
+    await openOverlay(page.getByRole("button", {name: /Delete Agent/i}), confirm);
+    await confirm.click();
 }
 
 

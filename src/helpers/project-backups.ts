@@ -2,7 +2,9 @@ import {expect, Page} from "@playwright/test";
 import {readFileSync} from "node:fs";
 import path from "node:path";
 import {get} from "./project";
-import {openOverlay} from "./ui";
+import {navigateVia, openOverlay} from "./ui";
+
+const PROJECT_DETAIL_URL = /\/dashboard\/projects\/[^/]+$/;
 
 const agentA: {databases: {name: string; type: string}[]} = JSON.parse(readFileSync(path.resolve(__dirname, "../../docker/agent/databases.json"), "utf8"));
 const agentB = readFileSync(path.resolve(__dirname, "../../docker/agent/databases.toml"), "utf8")
@@ -25,9 +27,10 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
     expect(group.databases.length, `${group.name} has configured data sources`).toBeGreaterThan(0);
     await page.goto("/dashboard/projects");
     const emptyState = page.getByText("Create new Project", {exact: true});
-    if (await emptyState.isVisible()) await emptyState.click();
-    else await page.getByRole("button", {name: /Create Project/i}).click();
-    await page.getByLabel("Name", {exact: true}).fill(group.name);
+    const createButton = page.getByRole("button", {name: /Create Project/i});
+    const nameField = page.getByRole("dialog").filter({visible: true}).getByLabel("Name", {exact: true});
+    await openOverlay(createButton.or(emptyState).filter({visible: true}).first(), nameField);
+    await nameField.fill(group.name);
     await page.getByRole("button", {name: "Databases", exact: true}).click();
     for (const name of group.databases) {
         await page.getByPlaceholder("Search...").fill(name);
@@ -37,8 +40,7 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
     await page.getByRole("option", {name: "Close", exact: true}).click();
     await page.getByRole("button", {name: "Create", exact: true}).click();
     await expect(page.getByText("Project has been successfully created.")).toBeVisible();
-    await get(page, group.name).click();
-    await expect(page).toHaveURL(/\/dashboard\/projects\/[^/]+$/);
+    await navigateVia(page, get(page, group.name), PROJECT_DETAIL_URL);
     const projectUrl = page.url();
     const links = page.locator('a[href*="/database/"]');
     await expect(links).toHaveCount(group.databases.length);
@@ -120,8 +122,10 @@ export async function verifyRetention(page: Page, url: string, latest: string, d
     await expect(backupRows(page)).toHaveCount(1);
     await expect(backupRows(page)).toContainText(latest);
     await expect(backupRows(page).getByText("success", {exact: true})).toBeVisible();
-    await page.getByRole("button").filter({has: page.locator("svg.lucide-funnel, svg.lucide-filter")}).click();
-    await page.getByRole("menuitem", {name: "Clear filters", exact: true}).click();
+    const filterButton = page.getByRole("button").filter({has: page.locator("svg.lucide-funnel, svg.lucide-filter")});
+    const clearFilters = page.getByRole("menuitem", {name: "Clear filters", exact: true});
+    await openOverlay(filterButton, clearFilters);
+    await clearFilters.click();
     await page.getByRole("menuitem", {name: "Deleted", exact: true}).click();
     await page.keyboard.press("Escape");
     await expect(backupRows(page)).toHaveCount(1);
@@ -133,8 +137,8 @@ export async function verifyRetention(page: Page, url: string, latest: string, d
 export async function queueProjectRestore(page: Page, projectUrl: string, count: number) {
     if (page.url() !== projectUrl) await page.goto(projectUrl);
     await page.getByRole("button", {name: "Select all", exact: true}).click();
-    await page.getByRole("button", {name: "Restore latest", exact: true}).click();
     const restore = page.getByRole("dialog", {name: `Restore ${count} database(s) to latest backup`, exact: true});
+    await openOverlay(page.getByRole("button", {name: "Restore latest", exact: true}), restore);
     await restore.getByPlaceholder("restore", {exact: true}).fill("restore");
     await restore.getByRole("button", {name: `Restore ${count} database(s)`, exact: true}).click();
     await expect(restore).toBeHidden();

@@ -20,7 +20,7 @@ export function get(page: Page, channelName: string) {
  */
 export async function edit(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await card.locator("button").nth(1).click();
+    await openOverlay(card.locator("button").nth(1), page.getByRole("dialog").filter({visible: true}).getByLabel(/Channel Name/));
 }
 
 /**
@@ -55,14 +55,11 @@ export async function create(
     const addButton = page.getByRole("button", {name: /Add notification channel/i});
     const emptyStateButton = page.getByRole("button", {name: /No notification channels configured yet/i});
 
-    let trigger: Locator;
-    if (entrypoint === "button") {
-        trigger = addButton;
-    } else if (entrypoint === "emptyState") {
-        trigger = emptyStateButton;
-    } else {
-        trigger = (await addButton.isVisible()) ? addButton : emptyStateButton;
-    }
+    const trigger: Locator = entrypoint === "button"
+        ? addButton
+        : entrypoint === "emptyState"
+            ? emptyStateButton
+            : addButton.or(emptyStateButton).filter({visible: true}).first();
 
     const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
     await openOverlay(trigger, dialog);
