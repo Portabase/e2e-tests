@@ -30,8 +30,9 @@ export async function edit(page: Page, channelName: string) {
  */
 export async function remove(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await card.locator("button").nth(2).click();
-    await page.getByRole("button", {name: "Delete"}).click();
+    const confirm = page.getByRole("button", {name: "Delete", exact: true});
+    await openOverlay(card.locator("button").nth(2), confirm);
+    await confirm.click();
 }
 
 /**
