@@ -12,6 +12,8 @@ services:
 
   rustfs:
     image: rustfs/rustfs:1.0.0-rc.5
+    mem_limit: 256m
+    cpus: 0.2
     environment:
       RUSTFS_ACCESS_KEY: portabase-e2e
       RUSTFS_SECRET_KEY: portabase-e2e-secret
@@ -23,6 +25,8 @@ services:
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.37.0
+    mem_limit: 256m
+    cpus: 0.2
     command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --skipApiVersionCheck --disableProductStyleUrl --location /data
     environment:
       AZURITE_ACCOUNTS: "portabase:cG9ydGFiYXNlLWUyZS1henVyaXRlLXNlY3JldA=="
@@ -33,19 +37,21 @@ services:
 
   fake-gcs-server:
     image: fsouza/fake-gcs-server:1.56
+    mem_limit: 128m
+    cpus: 0.1
     command: ["-scheme", "http", "-port", "4443", "-external-url", "http://localhost:4443", "-public-host", "localhost:4443"]
     volumes:
       - gcs-data:/storage
     ports: ["4443:4443"]
     networks: [portabase]
 
-  storage-init:
-    profiles: [setup]
-    image: python:3.13-alpine
-    volumes:
-      - ./init.py:/init.py:ro
-    command: python /init.py
-    networks: [portabase]
+#  storage-init:
+#    profiles: [setup]
+#    image: python:3.13-alpine
+#    volumes:
+#      - ./init.py:/init.py:ro
+#    command: python /init.py
+#    networks: [portabase]
 
 volumes:
   garage-meta:

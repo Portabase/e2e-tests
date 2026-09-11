@@ -1,4 +1,4 @@
-import {projectGroups, createBackupProject, configureBackupPolicies, queueProjectBackup, waitForSuccessfulBackup, verifyRetention} from "./helpers/project-backups";
+import {projectGroups, createBackupProject, configureBackupPolicies, queueProjectBackup, queueProjectRestore, waitForSuccessfulBackup, waitForSuccessfulRestore, verifyRetention} from "./helpers/project-backups";
 import {expect, test} from "@playwright/test";
 import {execFileSync} from "node:child_process";
 import {create, edit, get, remove} from "./helpers/project";
@@ -61,46 +61,62 @@ test.describe.serial(() => {
     });
 });
 
+type BackupProject = Awaited<ReturnType<typeof createBackupProject>> & {
+    first: Map<string, string>;
+    second: Map<string, string>;
+};
+const backupProjects: BackupProject[] = [];
+
 test.describe.serial("Backup projects and keep only the latest generation", () => {
-    for (const group of projectGroups) {
-        test(`${group.name}: two successful backup rounds and retention`, async ({page, request}) => {
-            test.setTimeout(20 * 60_000);
-            const {projectUrl, databaseUrls} = await createBackupProject(page, group);
-            await configureBackupPolicies(page, projectUrl, group.storage);
-            const generations: Map<string, string>[] = [];
-            for (let round = 0; round < 2; round++) {
-                await queueProjectBackup(page, projectUrl, databaseUrls.length);
-                const references = new Map<string, string>();
-                for (const url of databaseUrls) {
-                    references.set(url, await waitForSuccessfulBackup(page, url, generations[0]?.get(url)));
-                }
-                generations.push(references);
-            }
-            await page.waitForTimeout(60_000);
-            for (const url of databaseUrls) {
-                await verifyRetention(page, url, generations[1].get(url)!, generations[0].get(url)!);
-            }
-            if (group.name === "Docker") {
-                const before = await request.get("http://localhost:3082");
-                expect(before.status()).toBe(200);
-                const original = await before.text();
-                execFileSync("docker", ["exec", "portabase-e2e-web", "sh", "-c", "printf 'changed by E2E' > /usr/share/nginx/html/index.html"]);
-                expect(await (await request.get("http://localhost:3082")).text()).toBe("changed by E2E");
-                await page.goto(projectUrl);
-                await page.getByRole("button", {name: "Select all", exact: true}).click();
-                await page.getByRole("button", {name: "Restore latest", exact: true}).click();
-                const restore = page.getByRole("dialog", {name: "Restore 1 database(s) to latest backup", exact: true});
-                await restore.getByPlaceholder("restore", {exact: true}).fill("restore");
-                await restore.getByRole("button", {name: "Restore 1 database(s)", exact: true}).click();
-                await expect(restore).toBeHidden();
-                await page.goto(databaseUrls[0]);
-                await page.getByRole("tab", {name: "Restoration", exact: true}).click();
-                await expect(page.getByRole("cell", {name: "success", exact: true})).toBeVisible({timeout: 180_000});
-                await expect.poll(async () => {
-                    const response = await request.get("http://localhost:3082");
-                    return response.ok() ? response.text() : "not ready";
-                }, {timeout: 30_000}).toBe(original);
-            }
-        });
-    }
+    test("Create backup projects and configure policies", async ({page}) => {
+        test.setTimeout(10 * 60_000);
+        for (const group of projectGroups) {
+            const project = await createBackupProject(page, group);
+            await configureBackupPolicies(page, group.storage);
+            backupProjects.push({...project, first: new Map(), second: new Map()});
+        }
+    });
+
+    test("Run first successful backup for every database", async ({page}) => {
+        test.setTimeout(20 * 60_000);
+        for (const project of backupProjects) await queueProjectBackup(page, project.projectUrl, project.databaseUrls.length);
+        for (const project of backupProjects) {
+            for (const url of project.databaseUrls) project.first.set(url, await waitForSuccessfulBackup(page, url));
+        }
+    });
+
+    test("Run second successful backup for every database", async ({page}) => {
+        test.setTimeout(20 * 60_000);
+        for (const project of backupProjects) await queueProjectBackup(page, project.projectUrl, project.databaseUrls.length);
+        for (const project of backupProjects) {
+            for (const url of project.databaseUrls) project.second.set(url, await waitForSuccessfulBackup(page, url, project.first.get(url)));
+        }
+    });
+
+    test("Retain only the latest backup for every database", async ({page}) => {
+        test.setTimeout(5 * 60_000);
+        await page.waitForTimeout(60_000);
+        for (const project of backupProjects) {
+            for (const url of project.databaseUrls) await verifyRetention(page, url, project.second.get(url)!, project.first.get(url)!);
+        }
+    });
+
+    test("Restore every database from its latest backup", async ({page, request}) => {
+        test.setTimeout(20 * 60_000);
+        const before = await request.get("http://localhost:3082");
+        expect(before.status()).toBe(200);
+        const original = await before.text();
+        execFileSync("docker", ["exec", "portabase-e2e-web", "sh", "-c", "printf 'changed by E2E' > /usr/share/nginx/html/index.html"]);
+        expect(await (await request.get("http://localhost:3082")).text()).toBe("changed by E2E");
+
+        const restorableProjects = backupProjects.filter(project => project.restorable);
+        for (const project of restorableProjects) await queueProjectRestore(page, project.projectUrl, project.databaseUrls.length);
+        for (const project of restorableProjects) {
+            for (const url of project.databaseUrls) await waitForSuccessfulRestore(page, url);
+        }
+        await expect.poll(async () => {
+            const response = await request.get("http://localhost:3082");
+            return response.ok() ? response.text() : "not ready";
+        }, {timeout: 30_000}).toBe(original);
+    });
 });

@@ -1,6 +1,6 @@
 import {expect, test} from "@playwright/test";
 import {create, edit, get, launch, remove} from "./helpers/agent";
-import {navigateVia} from "./helpers/ui";
+import {navigateVia, openOverlay} from "./helpers/ui";
 import {LOCAL_STORAGE_PATH} from "./helpers/session";
 
 const agent = {
@@ -103,11 +103,16 @@ test.describe.serial(() => {
         for (const name of ["Agent A Updated", "Agent B"]) {
             await page.goto("/dashboard/agents");
             await navigateVia(page, get(page, name), /\/dashboard\/agents\/.+/);
-            await page.getByRole("button", {name: /Delete Agent/i})
-                .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]").click();
-            await page.getByRole("tab", {name: "Organizations", exact: true}).click();
-            await page.getByRole("button", {name: "Select organization(s)"}).click();
-            await page.getByRole("option", {name: "Default Organization", exact: true}).click();
+            const organizationsTab = page.getByRole("tab", {name: "Organizations", exact: true});
+            await openOverlay(
+                page.getByRole("button", {name: /Delete Agent/i})
+                    .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]"),
+                organizationsTab,
+            );
+            await organizationsTab.click();
+            const defaultOrganization = page.getByRole("option", {name: "Default Organization", exact: true});
+            await openOverlay(page.getByRole("button", {name: "Select organization(s)"}), defaultOrganization);
+            await defaultOrganization.click();
             await page.getByRole("option", {name: "Close", exact: true}).click();
             await page.getByRole("button", {name: "Save", exact: true}).click();
             await expect(page.getByText("Agent organizations has been successfully updated.")).toBeVisible();

@@ -2,6 +2,7 @@ import {test as base, expect, APIRequestContext, APIResponse, Browser} from "@pl
 import {randomUUID} from "node:crypto";
 import {readFileSync, writeFileSync} from "node:fs";
 import {API_KEY_PATH, LOCAL_STORAGE_PATH} from "../helpers/session";
+import {openOverlay} from "../helpers/ui";
 
 export {expect};
 
@@ -23,9 +24,11 @@ export async function createApiKey(browser: Browser) {
         const page = await context.newPage();
         const name = `e2e-${randomUUID().slice(0, 12)}`;
         await page.goto("/dashboard/home");
-        await page.getByTestId("profile-dropdown").first().click();
-        await page.getByRole("menuitem", {name: "Account Settings", exact: true}).click();
-        await page.getByRole("tab", {name: "Account", exact: true}).click();
+        const accountSettings = page.getByRole("menuitem", {name: "Account Settings", exact: true});
+        await openOverlay(page.getByTestId("profile-dropdown").first(), accountSettings);
+        const accountTab = page.getByRole("tab", {name: "Account", exact: true});
+        await openOverlay(accountSettings, accountTab);
+        await accountTab.click();
         await page.getByRole("button", {name: "Add API Key", exact: true}).click();
         await page.getByLabel("Key Name", {exact: true}).fill(name);
         await page.getByRole("button", {name: "Create API Key", exact: true}).click();

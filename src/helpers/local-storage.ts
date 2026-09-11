@@ -1,6 +1,7 @@
 import {expect, Page} from "@playwright/test";
 import {generateKeyPairSync} from "node:crypto";
 import {create, edit, get, remove, submit, testConnection} from "./storage";
+import {openOverlay} from "./ui";
 
 export const localStorage = {
     garage: {name: "garage", endpoint: "localhost", port: "3900", region: "garage", accessKey: "GK0123456789abcdef01234567", secretKey: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"},
@@ -30,12 +31,13 @@ export async function connectLocalStorage(page: Page, provider: Parameters<typeo
         await expect(get(page, name)).toHaveCount(0);
         return;
     }
-    await edit(page, name);
-    await page.getByRole("tab", {name: "Organizations", exact: true}).click();
-    await page.getByRole("button", {name: "Select organization(s)"}).click();
-    await page.getByRole("option", {name: "(Select All)", exact: true}).click();
+    const dialog = await edit(page, name);
+    await dialog.getByRole("tab", {name: "Organizations", exact: true}).click();
+    const selectAll = page.getByRole("option", {name: "(Select All)", exact: true});
+    await openOverlay(dialog.getByRole("button", {name: "Select organization(s)"}), selectAll);
+    await selectAll.click();
     await page.getByRole("option", {name: "Close", exact: true}).click();
-    await page.getByRole("button", {name: "Save", exact: true}).click();
+    await dialog.getByRole("button", {name: "Save", exact: true}).click();
     await expect(page.getByText("Storage channel organizations has been successfully updated.")).toBeVisible();
-    await page.getByRole("dialog").getByRole("button", {name: "Close", exact: true}).click();
+    await dialog.getByRole("button", {name: "Close", exact: true}).click();
 }

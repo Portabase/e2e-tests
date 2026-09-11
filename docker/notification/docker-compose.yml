@@ -3,6 +3,8 @@ name: portabase-notification
 services:
   ntfy:
     image: binwiederhier/ntfy:v2.28.0
+    mem_limit: 64m
+    cpus: 0.1
     command: serve
     ports:
       - "3080:80"
@@ -11,6 +13,8 @@ services:
 
   apprise:
     image: caronc/apprise:1.5
+    mem_limit: 1024m
+    cpus: 2
     environment:
       APPRISE_STATEFUL_MODE: simple
     ports:
@@ -21,6 +25,8 @@ services:
   apprise-init:
     profiles: [setup]
     image: curlimages/curl:8.12.1
+    mem_limit: 512m
+    cpus: 1
     depends_on: [apprise, ntfy]
     command:
       - --fail-with-body
