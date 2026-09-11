@@ -47,7 +47,7 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
 }
 
 export async function configureBackupPolicies(page: Page, url: string, storage: string) {
-    await page.goto(url);
+    // await page.goto(url);
     await page.getByRole("button").filter({has: page.locator("svg.lucide-clock-9")}).click();
     const method = page.getByRole("dialog", {name: "Backup method", exact: true});
     await method.getByRole("switch").check();
