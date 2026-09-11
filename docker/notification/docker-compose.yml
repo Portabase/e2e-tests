@@ -1,0 +1,41 @@
+name: portabase-notification
+
+services:
+  ntfy:
+    image: binwiederhier/ntfy:v2.28.0
+    command: serve
+    ports:
+      - "3080:80"
+    networks:
+      - portabase
+
+  apprise:
+    image: caronc/apprise:1.5
+    environment:
+      APPRISE_STATEFUL_MODE: simple
+    ports:
+      - "3081:8000"
+    networks:
+      - portabase
+
+  apprise-init:
+    profiles: [setup]
+    image: curlimages/curl:8.12.1
+    depends_on: [apprise, ntfy]
+    command:
+      - --fail-with-body
+      - --retry
+      - "30"
+      - --retry-all-errors
+      - --retry-delay
+      - "2"
+      - --data-urlencode
+      - urls=ntfy://ntfy/portabase-e2e
+      - http://apprise:8000/add/portabase-e2e
+    networks:
+      - portabase
+
+networks:
+  portabase:
+    name: portabase
+    external: true

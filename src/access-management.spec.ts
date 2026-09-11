@@ -81,4 +81,5 @@ test.describe.serial(() => {
         await expect(page.getByText("Member successfully added!")).toBeVisible();
         await expect(page.getByText(users.normal.email, {exact: true})).toBeVisible();
     });
+
 });

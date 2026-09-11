@@ -37,6 +37,8 @@ e2e-before:
     @just e2e-clean
     @docker network inspect portabase >/dev/null 2>&1 || docker network create portabase
     @docker compose -f docker/data-sources/docker-compose.yml up -d
+    @docker compose -f docker/notification/docker-compose.yml up -d
+    @docker compose -f docker/notification/docker-compose.yml run --rm apprise-init
     @docker compose -f docker/storage/docker-compose.yml up -d
     @sh docker/storage/init-garage.sh
     @docker compose -f docker/storage/docker-compose.yml run --rm storage-init
@@ -48,12 +50,13 @@ e2e-after:
 
 e2e-clean:
     @echo "Cleaning Docker artifacts (containers, images, and volumes)..."
-    @docker compose -f docker/agent/docker-compose.agent-a.yml down --volumes
-    @docker compose -f docker/agent/docker-compose.agent-b.yml down --volumes
-    @docker compose -f docker/storage/docker-compose.yml down --volumes
     @docker compose -f docker/server/docker-compose.yml down --volumes
     @docker compose -f docker/oidc/docker-compose.yml down --volumes
     @docker compose -f docker/data-sources/docker-compose.yml down --volumes
+    @docker compose -f docker/agent/docker-compose.agent-a.yml down
+    @docker compose -f docker/agent/docker-compose.agent-b.yml down
+    @docker compose -f docker/notification/docker-compose.yml down --volumes
+    @docker compose -f docker/storage/docker-compose.yml down --volumes
     @echo "Docker artifacts cleaned up successfully"
 
 e2e-auto:
@@ -84,5 +87,5 @@ e2e-onboarding-manual:
     @just e2e-after
 
 e2e-onboarding-auto:
-    @echo "Launching dashboard tests in non-interactive mode..."
+    @echo "Launching onboarding tests in non-interactive mode..."
     @SKIP_ONBOARDING=false CI=true pnpm playwright test --project=onboarding || (just e2e-clean; exit 1)
