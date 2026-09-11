@@ -79,7 +79,9 @@ export async function create(
  * Executes from: the add notification channel dialog opened from `/dashboard/notifications/channels`.
  */
 export async function submit(page: Page) {
-    await page.getByRole("button", {name: "Add Channel"}).click();
+    const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
+    await dialog.getByRole("button", {name: "Add Channel", exact: true}).click();
+    await expect(dialog).toBeHidden();
 }
 
 /**

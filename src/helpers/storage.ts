@@ -87,7 +87,9 @@ export async function testConnection(page: Page) {
  * Executes from: the add storage channel dialog opened from `/dashboard/storages/channels`.
  */
 export async function submit(page: Page) {
-    await page.getByRole("button", {name: "Add Channel"}).click();
+    const dialog = page.getByRole("dialog", {name: "Add Storage Channel"});
+    await dialog.getByRole("button", {name: "Add Channel", exact: true}).click();
+    await expect(dialog).toBeHidden();
 }
 
 /**
