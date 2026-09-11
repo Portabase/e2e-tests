@@ -133,7 +133,7 @@ x-sqlite-common: &sqlite-common
   mem_limit: 64m
   cpus: 0.1
   user: "0:0"
-  command: ["/bin/sh", "-lc", "mkdir -p /data && sqlite3 /data/backup_e2e.db 'CREATE TABLE IF NOT EXISTS e2e_probe (id INTEGER PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO e2e_probe VALUES (1, 42);' >/dev/null && tail -f /dev/null"]
+  command: [ "/bin/sh", "-lc", "mkdir -p /data && sqlite3 /data/backup_e2e.db 'CREATE TABLE IF NOT EXISTS e2e_probe (id INTEGER PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO e2e_probe VALUES (1, 42);' >/dev/null && tail -f /dev/null"]
   healthcheck:
     test: ["CMD-SHELL", "sqlite3 /data/backup_e2e.db 'SELECT 1;' | grep 1"]
     interval: 10s

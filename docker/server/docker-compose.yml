@@ -4,8 +4,8 @@ services:
 
   app:
     image: ${SERVER_IMAGE:-portabase/portabase:latest}
-    mem_limit: 1536m
-    cpus: 1.5
+    mem_limit: 2048m
+    cpus: 2
     ports:
       - '8887:80'
     environment:
