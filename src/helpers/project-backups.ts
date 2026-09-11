@@ -45,7 +45,11 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
     const links = page.locator('a[href*="/database/"]');
     await expect(links).toHaveCount(group.databases.length);
     const databaseUrls = await links.evaluateAll(elements => elements.map(el => (el as HTMLAnchorElement).href));
-    return {projectUrl, databaseUrls};
+    return {
+        projectUrl,
+        databaseUrls,
+        restorable: !group.types.some(type => type === "redis" || type === "valkey"),
+    };
 }
 
 export async function configureBackupPolicies(page: Page, storage: string) {

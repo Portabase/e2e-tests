@@ -109,8 +109,9 @@ test.describe.serial("Backup projects and keep only the latest generation", () =
         execFileSync("docker", ["exec", "portabase-e2e-web", "sh", "-c", "printf 'changed by E2E' > /usr/share/nginx/html/index.html"]);
         expect(await (await request.get("http://localhost:3082")).text()).toBe("changed by E2E");
 
-        for (const project of backupProjects) await queueProjectRestore(page, project.projectUrl, project.databaseUrls.length);
-        for (const project of backupProjects) {
+        const restorableProjects = backupProjects.filter(project => project.restorable);
+        for (const project of restorableProjects) await queueProjectRestore(page, project.projectUrl, project.databaseUrls.length);
+        for (const project of restorableProjects) {
             for (const url of project.databaseUrls) await waitForSuccessfulRestore(page, url);
         }
         await expect.poll(async () => {
