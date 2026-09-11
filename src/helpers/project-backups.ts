@@ -141,9 +141,10 @@ export async function verifyRetention(page: Page, url: string, latest: string, d
 
 export async function queueProjectRestore(page: Page, projectUrl: string, count: number) {
     if (page.url() !== projectUrl) await page.goto(projectUrl);
-    await page.getByRole("button", {name: "Select all", exact: true}).click();
+    const restoreButton = page.getByRole("button", {name: "Restore latest", exact: true}).and(page.locator("button:enabled"));
+    await openOverlay(page.getByRole("button", {name: "Select all", exact: true}), restoreButton);
     const restore = page.getByRole("dialog", {name: `Restore ${count} database(s) to latest backup`, exact: true});
-    await openOverlay(page.getByRole("button", {name: "Restore latest", exact: true}), restore);
+    await openOverlay(restoreButton, restore);
     await restore.getByPlaceholder("restore", {exact: true}).fill("restore");
     await restore.getByRole("button", {name: `Restore ${count} database(s)`, exact: true}).click();
     await expect(restore).toBeHidden();
