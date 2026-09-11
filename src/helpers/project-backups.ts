@@ -96,8 +96,9 @@ export async function configureBackupPolicies(page: Page, storage: string) {
 
 export async function queueProjectBackup(page: Page, projectUrl: string, count: number) {
     if (page.url() !== projectUrl) await page.goto(projectUrl);
-    await page.getByRole("button", {name: "Select all", exact: true}).click();
-    await page.getByRole("button", {name: "Backup", exact: true}).click();
+    const backupButton = page.getByRole("button", {name: "Backup", exact: true});
+    await openOverlay(page.getByRole("button", {name: "Select all", exact: true}), backupButton);
+    await backupButton.click();
     await expect(page.getByText(`Queued ${count} backup(s).`, {exact: true})).toBeVisible();
 }
 
