@@ -1,4 +1,4 @@
-import {Locator, Page} from "@playwright/test";
+import {expect, Locator, Page} from "@playwright/test";
 import {openOverlay} from "./ui";
 
 
@@ -53,7 +53,11 @@ export async function create(
  */
 export async function edit(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await openOverlay(card.locator("button").nth(1), page.getByRole("dialog").filter({visible: true}).getByLabel(/Channel Name/));
+    const dialog = page.getByRole("dialog").filter({visible: true});
+    const nameField = dialog.getByLabel(/Channel Name/);
+    await openOverlay(card.locator("button").nth(1), nameField);
+    await expect(nameField).toHaveValue(channelName);
+    return dialog;
 }
 
 /**
