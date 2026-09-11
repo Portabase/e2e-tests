@@ -7,6 +7,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./databases.toml:/config/config.toml
+      - sqlite-3.46-data:/sqlite-3.46
+      - sqlite-3.45-data:/sqlite-3.45
     environment:
       LOG: info
       TZ: "UTC"
@@ -22,3 +24,11 @@ networks:
   portabase:
     name: portabase
     external: true
+
+volumes:
+  sqlite-3.46-data:
+    external: true
+    name: database_sqlite-3.46-backup-e2e-data
+  sqlite-3.45-data:
+    external: true
+    name: database_sqlite-3.45-backup-e2e-data
