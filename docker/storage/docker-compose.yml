@@ -3,8 +3,6 @@ name: portabase-storage
 services:
   garage:
     image: dxflrs/garage:v2.4.1
-    mem_limit: 256m
-    cpus: 0.2
     volumes:
       - ./garage.toml:/etc/garage.toml:ro
       - garage-meta:/var/lib/garage/meta
@@ -46,6 +44,14 @@ services:
       - gcs-data:/storage
     ports: ["4443:4443"]
     networks: [portabase]
+
+#  storage-init:
+#    profiles: [setup]
+#    image: python:3.13-alpine
+#    volumes:
+#      - ./init.py:/init.py:ro
+#    command: python /init.py
+#    networks: [portabase]
 
 volumes:
   garage-meta:

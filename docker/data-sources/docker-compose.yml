@@ -276,7 +276,7 @@ services:
 
   mongodb-8.0-auth:
     <<: *mongodb-auth-common
-    image: ${MONGODB_8_IMAGE:-mongo:8.0}
+    image: mongo:8.0
     expose:
       - "27017"
     volumes:
@@ -284,7 +284,7 @@ services:
 
   mongodb-8.0-no-auth:
     <<: *mongodb-no-auth-common
-    image: ${MONGODB_8_IMAGE:-mongo:8.0}
+    image: mongo:8.0
     expose:
       - "27017"
     volumes:
