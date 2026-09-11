@@ -4,7 +4,7 @@ services:
   garage:
     image: dxflrs/garage:v2.4.1
     mem_limit: 256m
-    cpus: 0.2
+    cpus: 0.07
     volumes:
       - ./garage.toml:/etc/garage.toml:ro
       - garage-meta:/var/lib/garage/meta
@@ -15,7 +15,7 @@ services:
   rustfs:
     image: rustfs/rustfs:1.0.0-rc.5
     mem_limit: 256m
-    cpus: 0.2
+    cpus: 0.07
     environment:
       RUSTFS_ACCESS_KEY: portabase-e2e
       RUSTFS_SECRET_KEY: portabase-e2e-secret
@@ -28,7 +28,7 @@ services:
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:3.37.0
     mem_limit: 256m
-    cpus: 0.2
+    cpus: 0.05
     command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --skipApiVersionCheck --disableProductStyleUrl --location /data
     environment:
       AZURITE_ACCOUNTS: "portabase:cG9ydGFiYXNlLWUyZS1henVyaXRlLXNlY3JldA=="
@@ -40,7 +40,7 @@ services:
   fake-gcs-server:
     image: fsouza/fake-gcs-server:1.56
     mem_limit: 128m
-    cpus: 0.1
+    cpus: 0.03
     command: ["-scheme", "http", "-port", "4443", "-external-url", "http://localhost:4443", "-public-host", "localhost:4443"]
     volumes:
       - gcs-data:/storage

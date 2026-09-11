@@ -2,7 +2,7 @@ name: database
 
 x-postgresql-common: &postgresql-common
   mem_limit: 192m
-  cpus: 0.4
+  cpus: 0.08
   environment:
     POSTGRES_DB: backup_e2e
     POSTGRES_USER: backup
@@ -17,7 +17,7 @@ x-postgresql-common: &postgresql-common
 
 x-mysql-common: &mysql-common
   mem_limit: 256m
-  cpus: 0.4
+  cpus: 0.08
   environment:
     MYSQL_DATABASE: backup_e2e
     MYSQL_USER: backup
@@ -34,7 +34,7 @@ x-mysql-common: &mysql-common
 
 x-mariadb-common: &mariadb-common
   mem_limit: 192m
-  cpus: 0.4
+  cpus: 0.08
   environment:
     MARIADB_DATABASE: backup_e2e
     MARIADB_USER: backup
@@ -51,7 +51,7 @@ x-mariadb-common: &mariadb-common
 
 x-mongodb-auth-common: &mongodb-auth-common
   mem_limit: 384m
-  cpus: 0.4
+  cpus: 0.08
   environment:
     MONGO_INITDB_ROOT_USERNAME: backup
     MONGO_INITDB_ROOT_PASSWORD: backup
@@ -63,7 +63,7 @@ x-mongodb-auth-common: &mongodb-auth-common
         "mongosh --quiet --username $$MONGO_INITDB_ROOT_USERNAME --password $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --eval \"db.runCommand({ ping: 1 }).ok\" | grep 1",
       ]
     interval: 10s
-    timeout: 5s
+    timeout: 15s
     retries: 10
     start_period: 20s
   networks:
@@ -71,7 +71,7 @@ x-mongodb-auth-common: &mongodb-auth-common
 
 x-mongodb-no-auth-common: &mongodb-no-auth-common
   mem_limit: 384m
-  cpus: 0.4
+  cpus: 0.08
   healthcheck:
     test:
       [
@@ -79,7 +79,7 @@ x-mongodb-no-auth-common: &mongodb-no-auth-common
         "mongosh --quiet --eval \"db.runCommand({ ping: 1 }).ok\" | grep 1",
       ]
     interval: 10s
-    timeout: 5s
+    timeout: 15s
     retries: 10
     start_period: 20s
   networks:
@@ -87,7 +87,7 @@ x-mongodb-no-auth-common: &mongodb-no-auth-common
 
 x-redis-common: &redis-common
   mem_limit: 96m
-  cpus: 0.15
+  cpus: 0.03
   command: ["redis-server", "--appendonly", "yes"]
   healthcheck:
     test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
@@ -99,7 +99,7 @@ x-redis-common: &redis-common
 
 x-valkey-common: &valkey-common
   mem_limit: 96m
-  cpus: 0.15
+  cpus: 0.03
   command: ["valkey-server", "--appendonly", "yes"]
   healthcheck:
     test: ["CMD-SHELL", "valkey-cli ping | grep PONG"]
@@ -111,7 +111,7 @@ x-valkey-common: &valkey-common
 
 x-mssql-common: &mssql-common
   mem_limit: 2048m
-  cpus: 0.5
+  cpus: 0.12
   platform: linux/amd64
   environment:
     ACCEPT_EULA: "Y"
@@ -131,7 +131,7 @@ x-mssql-common: &mssql-common
 
 x-sqlite-common: &sqlite-common
   mem_limit: 64m
-  cpus: 0.1
+  cpus: 0.02
   user: "0:0"
   command: ["/bin/sh", "-lc", "mkdir -p /data && sqlite3 /data/backup_e2e.db 'CREATE TABLE IF NOT EXISTS e2e_probe (id INTEGER PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO e2e_probe VALUES (1, 42);' >/dev/null && tail -f /dev/null"]
   healthcheck:
@@ -147,7 +147,7 @@ services:
   web-test:
     image: nginx:1.28-alpine
     mem_limit: 64m
-    cpus: 0.1
+    cpus: 0.02
     container_name: portabase-e2e-web
     ports: ["3082:80"]
     volumes:

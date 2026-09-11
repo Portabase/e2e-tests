@@ -4,7 +4,7 @@ services:
   ntfy:
     image: binwiederhier/ntfy:v2.28.0
     mem_limit: 64m
-    cpus: 0.1
+    cpus: 0.02
     command: serve
     ports:
       - "3080:80"
@@ -14,7 +14,7 @@ services:
   apprise:
     image: caronc/apprise:1.5
     mem_limit: 128m
-    cpus: 0.1
+    cpus: 0.03
     environment:
       APPRISE_STATEFUL_MODE: simple
     ports:
@@ -26,7 +26,7 @@ services:
     profiles: [setup]
     image: curlimages/curl:8.12.1
     mem_limit: 32m
-    cpus: 0.05
+    cpus: 0.01
     depends_on: [apprise, ntfy]
     command:
       - --fail-with-body
