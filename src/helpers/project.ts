@@ -1,4 +1,7 @@
 import {Page} from "@playwright/test";
+import {navigateVia, openOverlay} from "./ui";
+
+const PROJECT_DETAIL_URL = /\/dashboard\/projects\/.+/;
 
 
 /**
@@ -20,13 +23,12 @@ export function get(page: Page, projectName: string) {
  * * Executes from: `/dashboard/projects`.
  */
 export async function create(page: Page, entrypoint: "emptyState" | "button", projectName: string) {
-    if (entrypoint === "emptyState") {
-        await page.getByText("Create new Project", {exact: true}).click();
-    } else {
-        await page.getByRole("button", {name: /Create Project/i}).click();
-    }
-
-    await page.getByLabel("Name").fill(projectName);
+    const trigger = entrypoint === "emptyState"
+        ? page.getByText("Create new Project", {exact: true})
+        : page.getByRole("button", {name: /Create Project/i});
+    const nameField = page.getByRole("dialog").filter({visible: true}).getByLabel("Name");
+    await openOverlay(trigger, nameField);
+    await nameField.fill(projectName);
     await page.getByRole("button", {name: "Create"}).click();
 }
 
@@ -36,14 +38,15 @@ export async function create(page: Page, entrypoint: "emptyState" | "button", pr
  * Executes from: `/dashboard/projects/[projectId]`.
  */
 export async function edit(page: Page, currentName: string, updatedName: string) {
-    await get(page, currentName).click();
+    await navigateVia(page, get(page, currentName), PROJECT_DETAIL_URL);
 
-    await page
+    const editButton = page
         .getByRole("button", {name: /Delete Project/i})
-        .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]")
-        .click();
+        .locator("xpath=ancestor::div[1]/preceding-sibling::div[1]/*[1]");
+    const nameField = page.getByRole("dialog").filter({visible: true}).getByLabel("Name");
+    await openOverlay(editButton, nameField);
 
-    await page.getByLabel("Name").fill(updatedName);
+    await nameField.fill(updatedName);
     await page.getByRole("button", {name: "Update"}).click();
 }
 
@@ -53,7 +56,8 @@ export async function edit(page: Page, currentName: string, updatedName: string)
  * Executes from: `/dashboard/projects/[projectId]`.
  * */
 export async function remove(page: Page, projectName: string) {
-    await get(page, projectName).click();
-    await page.getByRole("button", {name: /Delete Project/i}).click();
-    await page.getByRole("button", {name: "Delete", exact: true}).click();
+    await navigateVia(page, get(page, projectName), PROJECT_DETAIL_URL);
+    const confirm = page.getByRole("button", {name: "Delete", exact: true});
+    await openOverlay(page.getByRole("button", {name: /Delete Project/i}), confirm);
+    await confirm.click();
 }

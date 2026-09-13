@@ -9,6 +9,7 @@ import {expect, Locator, Page} from "@playwright/test";
  * "random Test timeout of 30000ms exceeded" failures). Retry the trigger until the
  * expected content shows. Skip the click when it is already open to avoid toggling a
  * just-opened overlay shut.
+ * Use only with idempotent triggers; submit and mutation buttons must not be retried.
  *
  * @param trigger the element that opens the overlay
  * @param content an element rendered only once the overlay is open (dialog, menuitem, …)

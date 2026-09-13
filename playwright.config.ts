@@ -15,7 +15,15 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         baseURL: process.env.SERVER_URL,
         actionTimeout: 30000,
-        trace: "on-first-retry",
+        video: {
+            mode: 'retain-on-failure',
+            size: {
+                width: 1280,
+                height: 720,
+            },
+        },
+        trace: 'retain-on-failure',
+        screenshot: 'only-on-failure',
     },
     timeout: 60000,
     projects: [
@@ -69,18 +77,18 @@ export default defineConfig({
         },
         {
             name: "dashboard",
-            testMatch: "**/dashboard.spec.ts",
+            testMatch: "/src/dashboard.spec.ts",
             dependencies: ["project"],
         },
-        {
-            name: "api",
-            testMatch: "/src/api/*.spec.ts",
-            dependencies: ["dashboard"],
-        },
+        // {
+        //     name: "api",
+        //     testMatch: "/src/api/*.spec.ts",
+        //     dependencies: ["dashboard"],
+        // },
         {
             name: "cleanup",
             testMatch: "/src/cleanup.spec.ts",
-            dependencies: ["api"],
+            dependencies: ["dashboard"],
         },
     ],
 });

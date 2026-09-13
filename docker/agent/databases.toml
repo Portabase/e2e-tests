@@ -100,7 +100,7 @@ generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef110"
 
 [[databases]]
 name = "MSSQL 2022"
-database = "master"
+database = "backup_e2e"
 type = "mssql"
 username = "sa"
 password = "BackupRootPassw0rd!"
@@ -110,7 +110,7 @@ generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef111"
 
 [[databases]]
 name = "MSSQL 2019"
-database = "master"
+database = "backup_e2e"
 type = "mssql"
 username = "sa"
 password = "BackupRootPassw0rd!"
@@ -121,11 +121,11 @@ generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef112"
 [[databases]]
 name = "SQLite 3.46"
 type = "sqlite"
-path = "/sqlite-data/workspace/data/app.db"
+path = "/sqlite-3.46/backup_e2e.db"
 generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef113"
 
 [[databases]]
 name = "SQLite 3.45"
 type = "sqlite"
-path = "/sqlite-data/workspace/data/app.db"
+path = "/sqlite-3.45/backup_e2e.db"
 generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef114"

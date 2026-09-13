@@ -68,8 +68,8 @@ const ROLE_LABELS = {
  */
 export async function changeUserRole(page: Page, role: keyof typeof ROLE_LABELS) {
     const roleOption = ROLE_LABELS[role];
-
-    await page.getByRole("combobox").click();
-    await page.getByRole("option", {name: roleOption}).click();
+    const option = page.getByRole("option", {name: roleOption});
+    await openOverlay(page.getByRole("combobox"), option);
+    await option.click();
     await page.getByRole("button", {name: "Validate"}).click();
 }

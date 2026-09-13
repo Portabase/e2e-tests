@@ -7,6 +7,7 @@ import {
   removeChannelByName,
 } from "./helpers/onboarding";
 import { launch } from "./helpers/agent";
+import { openOverlay } from "./helpers/ui";
 
 const user = {
   firstName: "Onboarding",
@@ -43,10 +44,8 @@ test.describe.serial(() => {
       page.getByRole("heading", { name: "Welcome to Portabase" }),
     ).toBeVisible({ timeout: 15000 });
 
-    await page.getByRole("button", { name: /Register/ }).click();
-    await expect(
-      page.getByRole("heading", { name: "Create your account" }),
-    ).toBeVisible();
+    const accountHeading = page.getByRole("heading", { name: "Create your account" });
+    await openOverlay(page.getByRole("button", { name: /Register/ }), accountHeading);
 
     await page.getByRole("button", { name: "Create account", exact: true }).click();
     await expect(page.getByText("First name required")).toBeVisible();
@@ -60,10 +59,10 @@ test.describe.serial(() => {
     ).toBeVisible({ timeout: 15000 });
 
     await test.step("Navigate to account-info", async () => {
-      await page.getByRole("button", { name: /Register/ }).click();
-      await expect(
+      await openOverlay(
+        page.getByRole("button", { name: /Register/ }),
         page.getByRole("heading", { name: "Create your account" }),
-      ).toBeVisible();
+      );
     });
 
     await test.step("Create first account", async () => {
@@ -198,20 +197,18 @@ test.describe.serial(() => {
     });
 
     await test.step("Defaults: select default notifier", async () => {
-      await page
-        .locator('[role="combobox"]', { hasText: "Choose a notifier" })
-        .click();
-      await page.getByRole("option", { name: /E2E Webhook Channel/ }).click();
+      const option = page.getByRole("option", { name: /E2E Webhook Channel/ });
+      await openOverlay(page.locator('[role="combobox"]', { hasText: "Choose a notifier" }), option);
+      await option.click();
       await expect(
         page.locator('[role="combobox"]', { hasText: "E2E Webhook Channel" }),
       ).toBeVisible();
     });
 
     await test.step("Defaults: select default storage", async () => {
-      await page
-        .locator('[role="combobox"]', { hasText: "Choose a storage" })
-        .click();
-      await page.getByRole("option", { name: /E2E S3 Backup/ }).click();
+      const option = page.getByRole("option", { name: /E2E S3 Backup/ });
+      await openOverlay(page.locator('[role="combobox"]', { hasText: "Choose a storage" }), option);
+      await option.click();
       await expect(
         page.locator('[role="combobox"]', { hasText: "E2E S3 Backup" }),
       ).toBeVisible();

@@ -23,14 +23,16 @@ export async function loginWithOidc(page: Page, providerId) {
     switch (providerId) {
         case "pocket-id":
             await loginWithPocketId(page)
-            return
+            break
         case "authentik":
             await loginWithAuthentik(page)
-            return
+            break
         case "keycloak":
             await loginWithKeycloak(page)
-            return
+            break
     }
+
+    await page.waitForURL(/\/dashboard\/home(?:\?.*)?$/, {timeout: 30_000});
 }
 
 
@@ -147,4 +149,3 @@ async function loginWithPocketId(page: Page) {
     // await page.goto(authorizationUrl);
     await page.waitForURL(/\/dashboard\/home(?:\?.*)?$/);
 }
-

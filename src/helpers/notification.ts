@@ -1,4 +1,4 @@
-import {Locator, Page} from "@playwright/test";
+import {expect, Locator, Page} from "@playwright/test";
 import {openOverlay} from "./ui";
 
 
@@ -20,7 +20,11 @@ export function get(page: Page, channelName: string) {
  */
 export async function edit(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await card.locator("button").nth(1).click();
+    const dialog = page.getByRole("dialog").filter({visible: true});
+    const nameField = dialog.getByLabel(/Channel Name/);
+    await openOverlay(card.locator("button").nth(1), nameField);
+    await expect(nameField).toHaveValue(channelName);
+    return dialog;
 }
 
 /**
@@ -30,8 +34,9 @@ export async function edit(page: Page, channelName: string) {
  */
 export async function remove(page: Page, channelName: string) {
     const card = get(page, channelName);
-    await card.locator("button").nth(2).click();
-    await page.getByRole("button", {name: "Delete"}).click();
+    const confirm = page.getByRole("button", {name: "Delete", exact: true});
+    await openOverlay(card.locator("button").nth(2), confirm);
+    await confirm.click();
 }
 
 /**
@@ -54,14 +59,11 @@ export async function create(
     const addButton = page.getByRole("button", {name: /Add notification channel/i});
     const emptyStateButton = page.getByRole("button", {name: /No notification channels configured yet/i});
 
-    let trigger: Locator;
-    if (entrypoint === "button") {
-        trigger = addButton;
-    } else if (entrypoint === "emptyState") {
-        trigger = emptyStateButton;
-    } else {
-        trigger = (await addButton.isVisible()) ? addButton : emptyStateButton;
-    }
+    const trigger: Locator = entrypoint === "button"
+        ? addButton
+        : entrypoint === "emptyState"
+            ? emptyStateButton
+            : addButton.or(emptyStateButton).filter({visible: true}).first();
 
     const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
     await openOverlay(trigger, dialog);
@@ -77,7 +79,9 @@ export async function create(
  * Executes from: the add notification channel dialog opened from `/dashboard/notifications/channels`.
  */
 export async function submit(page: Page) {
-    await page.getByRole("button", {name: "Add Channel"}).click();
+    const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
+    await dialog.getByRole("button", {name: "Add Channel", exact: true}).click();
+    await expect(dialog).toBeHidden();
 }
 
 /**
@@ -86,8 +90,8 @@ export async function submit(page: Page) {
  * Executes from: `/dashboard/notifications/channels`.
  */
 export async function testFromEdit(page: Page, channelName: string) {
-    await edit(page, channelName);
-    await page.getByRole("button", {name: /Test Channel/i}).click();
+    const dialog = await edit(page, channelName);
+    await dialog.getByRole("button", {name: /Test Channel/i}).click();
 }
 
 /**

@@ -4,9 +4,12 @@ services:
 
   app:
     image: ${AGENT_IMAGE:-portabase/agent:latest}
+    mem_limit: 256m
+    cpus: 0.2
     restart: unless-stopped
     volumes:
       - ./databases.json:/config/config.json
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       LOG: info
       TZ: "UTC"
