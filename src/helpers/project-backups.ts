@@ -19,8 +19,6 @@ export const projectGroups = [
     {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "rustFS"},
     {name: "MongoDB", types: ["mongodb"], storage: "azurite"},
     {name: "Redis/Valkey", types: ["redis", "valkey"], storage: "fake gcs server"},
-    // No storage policy: these back up to the instance default storage ("System"),
-    // which organizations only see in their policy picker once an admin links it.
     {name: "MSSQL/SQLite", types: ["mssql", "sqlite"]},
     {name: "Docker", types: ["docker-volume"]},
 ].map(group => ({...group, databases: databases.filter(db => group.types.includes(db.type)).map(db => db.name)}));
