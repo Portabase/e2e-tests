@@ -76,6 +76,7 @@ export async function configureBackupPolicies(page: Page, storage?: string) {
     await retention.getByRole("button", {name: "Save Retention Policy"}).click();
     await expect(page.getByText("Retention policy updated successfully.")).toBeVisible();
     await retention.getByRole("button", {name: "Close", exact: true}).click();
+    await expect(retention).toBeHidden();
 
     if (storage) {
         const policy = page.getByRole("dialog", {name: "Storage policies", exact: true});
