@@ -19,8 +19,8 @@ export const projectGroups = [
     {name: "MySQL/MariaDB", types: ["mysql", "mariadb"], storage: "rustFS"},
     {name: "MongoDB", types: ["mongodb"], storage: "azurite"},
     {name: "Redis/Valkey", types: ["redis", "valkey"], storage: "fake gcs server"},
-    {name: "MSSQL/SQLite", types: ["mssql", "sqlite"], storage: "System"},
-    {name: "Docker", types: ["docker-volume"], storage: "System"},
+    {name: "MSSQL/SQLite", types: ["mssql", "sqlite"]},
+    {name: "Docker", types: ["docker-volume"]},
 ].map(group => ({...group, databases: databases.filter(db => group.types.includes(db.type)).map(db => db.name)}));
 
 export async function createBackupProject(page: Page, group: typeof projectGroups[number]) {
@@ -52,7 +52,7 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
     };
 }
 
-export async function configureBackupPolicies(page: Page, storage: string) {
+export async function configureBackupPolicies(page: Page, storage?: string) {
     const method = page.getByRole("dialog", {name: "Backup method", exact: true});
     const methodButton = page.getByRole("button").filter({has: page.locator("svg.lucide-clock-9")});
     await expect(methodButton).toBeVisible();
@@ -77,18 +77,20 @@ export async function configureBackupPolicies(page: Page, storage: string) {
     await expect(page.getByText("Retention policy updated successfully.")).toBeVisible();
     await retention.getByRole("button", {name: "Close", exact: true}).click();
 
-    const policy = page.getByRole("dialog", {name: "Storage policies", exact: true});
-    const policyButton = page.getByRole("button").filter({has: page.locator("svg.lucide-hard-drive")});
-    await expect(policyButton).toBeVisible();
-    await openOverlay(policyButton, policy);
-    await policy.getByRole("button", {name: "Add Policy", exact: true}).click();
-    await policy.getByRole("combobox").click();
-    await page.getByRole("option").filter({has: page.getByText(storage, {exact: true})}).click();
-    await policy.getByRole("button", {name: "Save Changes", exact: true}).click();
-    await expect(policy).toBeHidden();
-    await openOverlay(policyButton, policy);
-    await expect(policy.getByRole("combobox")).toContainText(storage);
-    await policy.getByRole("button", {name: "Cancel", exact: true}).click();
+    if (storage) {
+        const policy = page.getByRole("dialog", {name: "Storage policies", exact: true});
+        const policyButton = page.getByRole("button").filter({has: page.locator("svg.lucide-hard-drive")});
+        await expect(policyButton).toBeVisible();
+        await openOverlay(policyButton, policy);
+        await policy.getByRole("button", {name: "Add Policy", exact: true}).click();
+        await policy.getByRole("combobox").click();
+        await page.getByRole("option").filter({has: page.getByText(storage, {exact: true})}).click();
+        await policy.getByRole("button", {name: "Save Changes", exact: true}).click();
+        await expect(policy).toBeHidden();
+        await openOverlay(policyButton, policy);
+        await expect(policy.getByRole("combobox")).toContainText(storage);
+        await policy.getByRole("button", {name: "Cancel", exact: true}).click();
+    }
     await openOverlay(retentionButton, retention);
     await expect(retention.getByLabel("Number of backups to keep")).toHaveValue("1");
     await retention.getByRole("button", {name: "Close", exact: true}).click();
