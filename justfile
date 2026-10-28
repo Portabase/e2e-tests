@@ -47,6 +47,10 @@ e2e-after:
     @just e2e-clean
     @echo "All tests completed successfully"
 
+e2e-diagnose:
+    @docker inspect -f '{{{{.Name}} status={{{{.State.Status}} exit={{{{.State.ExitCode}} oom={{{{.State.OOMKilled}} restarts={{{{.RestartCount}}' $(docker ps -aq) || true
+    @for name in $(docker ps -a --filter status=exited --format '{{{{.Names}}'); do docker logs --tail 30 "$name" 2>&1 | sed "s/^/[$name] /"; done
+
 e2e-clean:
     @echo "Cleaning Docker artifacts (containers, images, and volumes)..."
     @docker compose -f docker/server/docker-compose.yml down --volumes
@@ -76,7 +80,7 @@ e2e-dashboard-manual:
 
 e2e-dashboard-auto:
     @echo "Launching dashboard tests in non-interactive mode..."
-    @SKIP_ONBOARDING=true CI=true pnpm playwright test || (just e2e-clean; exit 1)
+    @SKIP_ONBOARDING=true CI=true pnpm playwright test || (just e2e-diagnose; just e2e-clean; exit 1)
 
 e2e-onboarding-manual:
     @just e2e-before
@@ -87,4 +91,4 @@ e2e-onboarding-manual:
 
 e2e-onboarding-auto:
     @echo "Launching onboarding tests in non-interactive mode..."
-    @SKIP_ONBOARDING=false CI=true pnpm playwright test --project=onboarding || (just e2e-clean; exit 1)
+    @SKIP_ONBOARDING=false CI=true pnpm playwright test --project=onboarding || (just e2e-diagnose; just e2e-clean; exit 1)
