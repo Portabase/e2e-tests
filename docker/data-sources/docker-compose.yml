@@ -57,6 +57,7 @@ x-mongodb-auth-common: &mongodb-auth-common
     MONGO_INITDB_ROOT_USERNAME: backup
     MONGO_INITDB_ROOT_PASSWORD: backup
     MONGO_INITDB_DATABASE: backup_e2e
+    GLIBC_TUNABLES: glibc.pthread.rseq=1
   healthcheck:
     test:
       [
@@ -73,6 +74,8 @@ x-mongodb-auth-common: &mongodb-auth-common
 x-mongodb-no-auth-common: &mongodb-no-auth-common
   mem_limit: 384m
   cpus: 0.4
+  environment:
+    GLIBC_TUNABLES: glibc.pthread.rseq=1
   healthcheck:
     test:
       [
