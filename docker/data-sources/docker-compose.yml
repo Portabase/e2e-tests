@@ -16,8 +16,9 @@ x-postgresql-common: &postgresql-common
     - portabase
 
 x-mysql-common: &mysql-common
-  mem_limit: 256m
+  mem_limit: 512m
   cpus: 0.4
+  restart: unless-stopped
   environment:
     MYSQL_DATABASE: backup_e2e
     MYSQL_USER: backup
