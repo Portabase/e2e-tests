@@ -130,14 +130,13 @@ export async function verifyRetention(page: Page, url: string, latest: string, d
     await expect(backupRows(page)).toHaveCount(1);
     await expect(backupRows(page)).toContainText(latest);
     await expect(backupRows(page).getByText("success", {exact: true})).toBeVisible();
-    const filterButton = page.getByRole("button").filter({has: page.locator("svg.lucide-funnel, svg.lucide-filter")});
-    const clearFilters = page.getByRole("menuitem", {name: "Clear filters", exact: true});
-    await openOverlay(filterButton, clearFilters);
-    await clearFilters.click();
-    await page.getByRole("menuitem", {name: "Deleted", exact: true}).click();
+    const stateValue = page.getByRole("button", {name: "Available", exact: true});
+    const deletedOption = page.getByRole("option", {name: "Deleted", exact: true});
+    await openOverlay(stateValue, deletedOption);
+    await deletedOption.click();
+    await page.getByRole("option", {name: "Available", exact: true}).click();
     await page.keyboard.press("Escape");
-    await expect(backupRows(page)).toHaveCount(1);
-    await expect(backupRows(page)).toContainText(deleted);
+    await expect(backupRows(page)).toHaveText([new RegExp(deleted)]);
     await expect(backupRows(page).getByText("success", {exact: true})).toBeVisible();
     await expect(page.getByText(latest, {exact: true})).toHaveCount(0);
 }
