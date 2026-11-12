@@ -129,3 +129,33 @@ name = "SQLite 3.45"
 type = "sqlite"
 path = "/sqlite-3.45/backup_e2e.db"
 generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef114"
+
+[[databases]]
+name = "Firebird 5.0"
+database = "/var/lib/firebird/data/backup_e2e.fdb"
+type = "firebird"
+username = "backup"
+password = "backup"
+port = 3050
+host = "firebird-5"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef115"
+
+[[databases]]
+name = "Firebird 4.0"
+database = "/var/lib/firebird/data/backup_e2e.fdb"
+type = "firebird"
+username = "backup"
+password = "backup"
+port = 3050
+host = "firebird-4"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef116"
+
+[[databases]]
+name = "Firebird 3.0"
+database = "/var/lib/firebird/data/backup_e2e.fdb"
+type = "firebird"
+username = "SYSDBA"
+password = "backup-root"
+port = 3050
+host = "firebird-3"
+generated_id = "9f8a5b18-0f45-4b4c-a821-93d7e46ef117"
