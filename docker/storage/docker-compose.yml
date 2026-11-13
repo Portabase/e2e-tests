@@ -45,6 +45,19 @@ services:
     ports: ["4443:4443"]
     networks: [portabase]
 
+  sftpgo:
+    image: drakkan/sftpgo:v2.7.6
+    mem_limit: 256m
+    cpus: 0.2
+    environment:
+      SFTPGO_DATA_PROVIDER__CREATE_DEFAULT_ADMIN: "true"
+      SFTPGO_DEFAULT_ADMIN_USERNAME: admin
+      SFTPGO_DEFAULT_ADMIN_PASSWORD: portabase-e2e-admin-secret
+    volumes:
+      - sftpgo-data:/srv/sftpgo
+    ports: ["2022:2022", "8080:8080"]
+    networks: [portabase]
+
 #  storage-init:
 #    profiles: [setup]
 #    image: python:3.13-alpine
@@ -59,6 +72,7 @@ volumes:
   rustfs-data:
   azurite-data:
   gcs-data:
+  sftpgo-data:
 
 networks:
   portabase:

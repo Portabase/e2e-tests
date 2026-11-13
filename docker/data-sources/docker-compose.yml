@@ -146,6 +146,24 @@ x-sqlite-common: &sqlite-common
   networks:
     - portabase
 
+x-firebird-common: &firebird-common
+  mem_limit: 192m
+  cpus: 0.4
+  environment:
+    FIREBIRD_ROOT_PASSWORD: backup-root
+    FIREBIRD_USER: backup
+    FIREBIRD_PASSWORD: backup
+    FIREBIRD_DATABASE: backup_e2e.fdb
+    FIREBIRD_DATABASE_DEFAULT_CHARSET: UTF8
+  healthcheck:
+    test: ["CMD-SHELL", "echo 'SELECT COUNT(*) FROM RDB$$DATABASE;' | isql -user $$FIREBIRD_USER -password $$FIREBIRD_PASSWORD localhost:/var/lib/firebird/data/$$FIREBIRD_DATABASE -q | grep 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 10
+    start_period: 20s
+  networks:
+    - portabase
+
 services:
 
   web-test:
@@ -386,6 +404,30 @@ services:
     volumes:
       - sqlite-3.45-backup-e2e-data:/data
 
+  firebird-5:
+    <<: *firebird-common
+    image: firebirdsql/firebird:5
+    expose:
+      - "3050"
+    volumes:
+      - firebird-5-backup-e2e-data:/var/lib/firebird/data
+
+  firebird-4:
+    <<: *firebird-common
+    image: firebirdsql/firebird:4
+    expose:
+      - "3050"
+    volumes:
+      - firebird-4-backup-e2e-data:/var/lib/firebird/data
+
+  firebird-3:
+    <<: *firebird-common
+    image: firebirdsql/firebird:3
+    expose:
+      - "3050"
+    volumes:
+      - firebird-3-backup-e2e-data:/var/lib/firebird/data
+
 volumes:
   web-test-backup-e2e-data:
   postgresql-18-backup-e2e-data:
@@ -417,6 +459,9 @@ volumes:
   mssql-2019-backup-e2e-data:
   sqlite-3.46-backup-e2e-data:
   sqlite-3.45-backup-e2e-data:
+  firebird-5-backup-e2e-data:
+  firebird-4-backup-e2e-data:
+  firebird-3-backup-e2e-data:
 
 networks:
   portabase:

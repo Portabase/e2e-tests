@@ -81,7 +81,34 @@ def gcs():
     }, json.dumps({"name": "portabase-e2e"}).encode())
 
 
-for initialize in (garage, rustfs, azurite, gcs):
+def sftpgo():
+    credentials = base64.b64encode(b"admin:portabase-e2e-admin-secret").decode()
+    token_request = urllib.request.Request("http://localhost:8080/api/v2/token", headers={
+        "Authorization": f"Basic {credentials}",
+    })
+    with urllib.request.urlopen(token_request, timeout=5) as response:
+        token = json.load(response)["access_token"]
+    user_request = urllib.request.Request(
+        "http://localhost:8080/api/v2/users",
+        data=json.dumps({
+            "username": "portabase-e2e",
+            "password": "portabase-e2e-secret",
+            "status": 1,
+            "home_dir": "/srv/sftpgo/data/portabase-e2e",
+            "permissions": {"/": ["*"]},
+        }).encode(),
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(user_request, timeout=5):
+            pass
+    except urllib.error.HTTPError as error:
+        if error.code != 409:
+            raise
+
+
+for initialize in (garage, rustfs, azurite, gcs, sftpgo):
     for attempt in range(60):
         try:
             initialize()

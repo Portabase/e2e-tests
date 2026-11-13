@@ -20,6 +20,7 @@ export const projectGroups = [
     {name: "MongoDB", types: ["mongodb"], storage: "azurite"},
     {name: "Redis/Valkey", types: ["redis", "valkey"], storage: "fake gcs server"},
     {name: "MSSQL/SQLite", types: ["mssql", "sqlite"]},
+    {name: "Firebird", types: ["firebird"], storage: "sftpgo"},
     {name: "Docker", types: ["docker-volume"]},
 ].map(group => ({...group, databases: databases.filter(db => group.types.includes(db.type)).map(db => db.name)}));
 

@@ -3,7 +3,7 @@
 End-to-end tests for the entire ecosystem: Portabase, agent, and CLI.
 
 Technologies:
-- Playwright 1.62.0
+- Playwright 1.65.0
 - Node (TypeScript) with pnpm
 - Docker Compose
 

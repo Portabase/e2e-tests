@@ -2,7 +2,7 @@ import {defineConfig, devices} from "@playwright/test";
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({path: path.resolve(__dirname, ".env")});
+dotenv.config({path: path.resolve(__dirname, ".env"), quiet: true});
 
 export default defineConfig({
     testDir: "./src",
@@ -13,6 +13,7 @@ export default defineConfig({
     reporter: "html",
     use: {
         ...devices["Desktop Chrome"],
+        screen: undefined,
         baseURL: process.env.SERVER_URL,
         actionTimeout: 30000,
         video: {
