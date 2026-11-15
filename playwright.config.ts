@@ -77,9 +77,14 @@ export default defineConfig({
             dependencies: ["notification", "storage", "agent"],
         },
         {
+            name: "import",
+            testMatch: "/src/import.spec.ts",
+            dependencies: ["project"],
+        },
+        {
             name: "dashboard",
             testMatch: "/src/dashboard.spec.ts",
-            dependencies: ["project"],
+            dependencies: ["import"],
         },
         // {
         //     name: "api",
