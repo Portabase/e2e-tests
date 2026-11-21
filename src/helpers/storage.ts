@@ -25,7 +25,7 @@ export function get(page: Page, channelName: string) {
  */
 export async function create(
     page: Page,
-    provider: "S3" | "Google Drive" | "Azure Blob Storage" | "Google Cloud Storage" | "SFTP",
+    provider: "S3" | "Google Drive" | "Azure Blob Storage" | "Google Cloud Storage" | "SFTP" | "WebDAV",
     channelName: string,
     fillConfig: (page: Page) => Promise<void>,
     entrypoint: "auto" | "emptyState" | "button" = "auto",
