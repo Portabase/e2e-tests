@@ -53,9 +53,20 @@ services:
       SFTPGO_DATA_PROVIDER__CREATE_DEFAULT_ADMIN: "true"
       SFTPGO_DEFAULT_ADMIN_USERNAME: admin
       SFTPGO_DEFAULT_ADMIN_PASSWORD: portabase-e2e-admin-secret
+      SFTPGO_FTPD__BINDINGS__0__PORT: "2121"
+      SFTPGO_FTPD__BINDINGS__0__TLS_MODE: "0"
+      SFTPGO_FTPD__BINDINGS__0__CERTIFICATE_FILE: /var/lib/sftpgo/certs/ftps-server.crt
+      SFTPGO_FTPD__BINDINGS__0__CERTIFICATE_KEY_FILE: /var/lib/sftpgo/certs/ftps-server.key
+      SFTPGO_FTPD__BINDINGS__1__PORT: "2990"
+      SFTPGO_FTPD__BINDINGS__1__TLS_MODE: "2"
+      SFTPGO_FTPD__BINDINGS__1__CERTIFICATE_FILE: /var/lib/sftpgo/certs/ftps-server.crt
+      SFTPGO_FTPD__BINDINGS__1__CERTIFICATE_KEY_FILE: /var/lib/sftpgo/certs/ftps-server.key
+      SFTPGO_FTPD__PASSIVE_PORT_RANGE__START: "50000"
+      SFTPGO_FTPD__PASSIVE_PORT_RANGE__END: "50005"
     volumes:
       - sftpgo-data:/srv/sftpgo
-    ports: ["2022:2022", "8080:8080"]
+      - ./certs:/var/lib/sftpgo/certs:ro
+    ports: ["2022:2022", "2121:2121", "2990:2990", "50000-50005:50000-50005", "8080:8080"]
     networks: [portabase]
 
 #  storage-init:
