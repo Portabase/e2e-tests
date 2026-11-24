@@ -9,6 +9,7 @@ export const localStorage = {
     azure: {name: "azurite", connectionString: "DefaultEndpointsProtocol=http;AccountName=portabase;AccountKey=cG9ydGFiYXNlLWUyZS1henVyaXRlLXNlY3JldA==;BlobEndpoint=http://localhost:10000/portabase;"},
     gcs: {name: "fake gcs server", endpoint: "http://localhost:4443"},
     sftpgo: {name: "sftpgo", host: "localhost", port: "2022", username: "portabase-e2e", password: "portabase-e2e-secret", remotePath: "/backups"},
+    samba: {name: "samba", host: "localhost", port: "1445", share: "backups", username: "portabase", password: "portabase-e2e-secret", remotePath: "/"},
 };
 
 export const bucket = "portabase-e2e";

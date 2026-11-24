@@ -58,6 +58,18 @@ services:
     ports: ["2022:2022", "8080:8080"]
     networks: [portabase]
 
+  samba:
+    image: servercontainers/samba:a3.24.1-s4.23.8-r0
+    mem_limit: 256m
+    cpus: 0.2
+    environment:
+      ACCOUNT_portabase: portabase-e2e-secret
+      SAMBA_VOLUME_CONFIG_backups: "[backups]; path = /shares/backups; valid users = portabase; guest ok = no; read only = no; browseable = yes; force user = root"
+    volumes:
+      - samba-data:/shares/backups
+    ports: ["1445:445"]
+    networks: [portabase]
+
 #  storage-init:
 #    profiles: [setup]
 #    image: python:3.13-alpine
@@ -73,6 +85,7 @@ volumes:
   azurite-data:
   gcs-data:
   sftpgo-data:
+  samba-data:
 
 networks:
   portabase:
