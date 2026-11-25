@@ -11,10 +11,12 @@ services:
     environment:
       - TZ=Europe/Paris
       - SKIP_ONBOARDING=${SKIP_ONBOARDING:-true}
+      - SSL_CERT_FILE=/certs/ftps-ca.crt
     env_file:
       - .env
     volumes:
       - portabase-server-data:/data
+      - ../storage/certs/ftps-ca.crt:/certs/ftps-ca.crt:ro
     depends_on:
       db:
         condition: service_healthy
