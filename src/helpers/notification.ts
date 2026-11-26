@@ -68,7 +68,8 @@ export async function create(
     const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
     await openOverlay(trigger, dialog);
 
-    await dialog.getByText(provider, {exact: true}).click();
+    // Match the tile label only: some provider icons draw the same text.
+    await dialog.getByText(provider, {exact: true}).and(dialog.locator("span")).click();
     await page.getByLabel(/Channel Name/).fill(channelName);
     await fillConfig(page);
 }
