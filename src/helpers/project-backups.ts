@@ -37,8 +37,9 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
         await page.getByPlaceholder("Search...").fill(name);
         await page.getByRole("option").filter({hasText: `${name} |`}).click();
     }
-    await page.getByPlaceholder("Search...").fill("");
-    await page.getByRole("option", {name: "Close", exact: true}).click();
+    // Escape closes the picker: with many databases selected, its "Close" footer sits below a 720px viewport.
+    await page.getByPlaceholder("Search...").press("Escape");
+    await expect(page.getByPlaceholder("Search...")).toBeHidden();
     await page.getByRole("button", {name: "Create", exact: true}).click();
     await expect(page.getByText("Project has been successfully created.")).toBeVisible();
     await navigateVia(page, get(page, group.name), PROJECT_DETAIL_URL);
