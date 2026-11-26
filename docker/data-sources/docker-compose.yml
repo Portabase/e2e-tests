@@ -51,7 +51,8 @@ x-mariadb-common: &mariadb-common
     - portabase
 
 x-mongodb-auth-common: &mongodb-auth-common
-  mem_limit: 384m
+  # First-boot init runs mongosh next to mongod and the healthcheck mongosh; 384m got the init OOM-killed (exit 137), leaving the container dead.
+  mem_limit: 768m
   cpus: 0.4
   environment:
     MONGO_INITDB_ROOT_USERNAME: backup
