@@ -6,7 +6,8 @@ test.use({storageState: LOCAL_STORAGE_PATH});
 
 test.describe.serial(() => {
     test("Connect valid SFTPGo WebDAV storage", async ({page}) => {
-        await connectLocalStorage(page, "WebDAV", localStorage.sftpgo.name, async () => {
+        // Own name: the SFTP spec already owns "sftpgo", and a duplicate makes the Firebird storage pick ambiguous.
+        await connectLocalStorage(page, "WebDAV", `${localStorage.sftpgo.name}-webdav`, async () => {
             await page.getByLabel("WebDAV URL *", {exact: true}).fill(localStorage.sftpgo.webdavUrl);
             await page.getByLabel("Username", {exact: true}).fill(localStorage.sftpgo.username);
             await page.getByLabel("Password", {exact: true}).fill(localStorage.sftpgo.password);
