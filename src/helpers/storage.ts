@@ -41,7 +41,8 @@ export async function create(
     const dialog = page.getByRole("dialog", {name: "Add Storage Channel"});
     await openOverlay(trigger, dialog);
 
-    await dialog.getByText(provider, {exact: true}).click();
+    // Match the tile label only: some provider icons draw the same text (the SMB SVG says "SMB").
+    await dialog.getByText(provider, {exact: true}).and(dialog.locator("span")).click();
     await page.getByLabel(/Channel Name/).fill(channelName);
     await fillConfig(page);
 }
@@ -83,13 +84,20 @@ export async function testConnection(page: Page) {
 
 /**
  * Submit the storage channel creation wizard: "Next" creates the channel,
- * "Finish" saves the (empty) organization selection and closes the dialog.
+ * "Finish" saves the organization selection (all organizations when
+ * `assignAllOrganizations` is set, none otherwise) and closes the dialog.
  *
  * Executes from: the add storage channel dialog opened from `/dashboard/storages/channels`.
  */
-export async function submit(page: Page) {
+export async function submit(page: Page, assignAllOrganizations = false) {
     const dialog = page.getByRole("dialog", {name: "Add Storage Channel"});
     await dialog.getByRole("button", {name: "Next", exact: true}).click();
+    if (assignAllOrganizations) {
+        const selectAll = page.getByRole("option", {name: "(Select All)", exact: true});
+        await openOverlay(dialog.getByRole("button", {name: "Select organization(s)"}), selectAll);
+        await selectAll.click();
+        await page.getByRole("option", {name: "Close", exact: true}).click();
+    }
     await dialog.getByRole("button", {name: "Finish", exact: true}).click();
     await expect(dialog).toBeHidden();
 }
