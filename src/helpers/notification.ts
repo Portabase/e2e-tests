@@ -74,13 +74,15 @@ export async function create(
 }
 
 /**
- * Submit the notification channel creation form.
+ * Submit the notification channel creation wizard: "Next" creates the channel,
+ * "Finish" saves the (empty) organization selection and closes the dialog.
  *
  * Executes from: the add notification channel dialog opened from `/dashboard/notifications/channels`.
  */
 export async function submit(page: Page) {
     const dialog = page.getByRole("dialog", {name: "Add Notification Channel"});
-    await dialog.getByRole("button", {name: "Add Channel", exact: true}).click();
+    await dialog.getByRole("button", {name: "Next", exact: true}).click();
+    await dialog.getByRole("button", {name: "Finish", exact: true}).click();
     await expect(dialog).toBeHidden();
 }
 

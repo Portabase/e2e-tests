@@ -82,13 +82,15 @@ export async function testConnection(page: Page) {
 }
 
 /**
- * Submit the storage channel creation form.
+ * Submit the storage channel creation wizard: "Next" creates the channel,
+ * "Finish" saves the (empty) organization selection and closes the dialog.
  *
  * Executes from: the add storage channel dialog opened from `/dashboard/storages/channels`.
  */
 export async function submit(page: Page) {
     const dialog = page.getByRole("dialog", {name: "Add Storage Channel"});
-    await dialog.getByRole("button", {name: "Add Channel", exact: true}).click();
+    await dialog.getByRole("button", {name: "Next", exact: true}).click();
+    await dialog.getByRole("button", {name: "Finish", exact: true}).click();
     await expect(dialog).toBeHidden();
 }
 
