@@ -55,7 +55,7 @@ export async function createBackupProject(page: Page, group: typeof projectGroup
 }
 
 export async function configureBackupPolicies(page: Page, storage?: string) {
-    const method = page.getByRole("dialog", {name: "Backup method", exact: true});
+    const method = page.getByRole("dialog", {name: "Backup schedule", exact: true});
     const methodButton = page.getByRole("button").filter({has: page.locator("svg.lucide-clock-9")});
     await expect(methodButton).toBeVisible();
     await openOverlay(methodButton, method);
